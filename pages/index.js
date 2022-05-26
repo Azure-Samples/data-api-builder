@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
-
+import React, { useState } from 'react';
 
 import { gql, useQuery } from "@apollo/client";
 import client from "../apollo-client";
@@ -9,26 +9,13 @@ import gql_functions from "../gql-utilities"
 
 import styles from '../styles/Home.module.css'
 
+// Chakra UI Imports
+import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box } from '@chakra-ui/react'
+import { BsPlusCircle } from "react-icons/bs";
+
 
 export async function getStaticProps() {
-    //const GET_BOOKS = gql`
-    //    query {
-    //        getBooks {
-    //            id
-    //            title
-    //          }
-    //     }`;
-    //console.log(GET_BOOKS);
-    //const { data } = await client.query({
-    //    query: gql`
-    //        {
-    //            getBooks {
-    //                id
-    //                title
-    //            }
-    //        }`
-    //});
-
+    
     const data = await gql_functions.get_articles();
     console.log(data)
 
@@ -38,19 +25,18 @@ export async function getStaticProps() {
         },
     };
 }
-//const GET_BOOKS = gql`
-//         {
-//            getBooks {
-//                id
-//                title
-//              }
-//         }`;
+
+const openEditor = () => {
+
+}
 
 export default function Home({ articles }) {
     //const { loading, error, books } = useQuery(GET_BOOKS, { client: client })
-   
+
     //if (loading) return 'Loading...';
     //if (error) return `Error! ${error.graphQLErrors}`
+    const [editing, setEditing] = React.useState(false);
+
 
   return (
     <div className={styles.container}>
@@ -69,13 +55,22 @@ export default function Home({ articles }) {
                   Made with <a href="https://nextjs.org">Next.js</a>, apollo gql, and Azure data gateway.
           
         </p>
-              <button className={styles.button }>Create Post</button>
+              {editing &&
+                  <Box backgroundColor="white" padding="20px" width="33%" borderRadius="20px">
+                  <VStack width="100%" spacing={0}  borderWidth="5px" borderRadius="10px" divider={<StackDivider borderColor='gray.200' />}>'
+                    <Heading borderRadius="5px" textAlign="center" color="white" width="100%" backgroundColor="gray" fontSize='xl'> Create Article </Heading>
+                      <Textarea id="title" size="lg" overflow="auto" resize="none" rows={1} placeholder='Title' />
+                      <Textarea id="body" size="lg" rows={5} placeholder='Markdown Body' /> 
+                          <Button colorScheme='twitter' width="100%" onClick={() => { setEditing(false); gql_functions.create_article(document.getElementById("title").innerHTML, document.getElementById("body").innerHTML); }}> Post </Button>
+                  </VStack>
+                  </Box>}
+              {!editing && <Button onClick={()=>setEditing(true)} size="lg" rightIcon={<BsPlusCircle />}> Create Post </Button>}
               <div className={styles.grid}>
-                      {articles.map((article) => (
+                      {articles.slice(0).reverse().map((article) => (
                           <div key={article.id} className={styles.card}>
-                              <h3>
+                              <Heading> 
                                 { article.title }
-                              </h3>
+                              </Heading>
                               <code className={styles.code}>{article.body}</code>
                           </div>
 

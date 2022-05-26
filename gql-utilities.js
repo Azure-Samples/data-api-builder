@@ -18,8 +18,8 @@ const gql_functions = {
         });
         return data.articles.items
     },
-    create_article: async () => {
-
+    create_article: async (title, body) => {
+        console.log(title, body);
     }
 
 }
