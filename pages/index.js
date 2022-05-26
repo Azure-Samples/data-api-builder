@@ -43,7 +43,9 @@ export default function Home({ articles }) {
     const post = () => {
         setEditing(false);
         gql_functions.create_article(titleInput, bodyInput);
-        setTimeout(()=>document.location.reload(true), 2);
+        setTimeout(() => {
+            document.location.reload(true)
+        }, 1000);
     }
 
 
