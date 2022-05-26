@@ -23,6 +23,7 @@ export async function getStaticProps() {
         props: {
             articles: data,
         },
+        revalidate: 1
     };
 }
 
@@ -35,7 +36,15 @@ export default function Home({ articles }) {
 
     //if (loading) return 'Loading...';
     //if (error) return `Error! ${error.graphQLErrors}`
-    const [editing, setEditing] = React.useState(false);
+    const [editing, setEditing] = useState(false);
+    const [titleInput, setTitleInput] = useState("");
+    const [bodyInput, setBodyInput] = useState("");
+
+    const post = () => {
+        setEditing(false);
+        gql_functions.create_article(titleInput, bodyInput);
+        setTimeout(()=>document.location.reload(true), 2);
+    }
 
 
   return (
@@ -57,12 +66,12 @@ export default function Home({ articles }) {
         </p>
               {editing &&
                   <Box backgroundColor="white" padding="20px" width="33%" borderRadius="20px">
-                  <VStack width="100%" spacing={0}  borderWidth="5px" borderRadius="10px" divider={<StackDivider borderColor='gray.200' />}>'
-                    <Heading borderRadius="5px" textAlign="center" color="white" width="100%" backgroundColor="gray" fontSize='xl'> Create Article </Heading>
-                      <Textarea id="title" size="lg" overflow="auto" resize="none" rows={1} placeholder='Title' />
-                      <Textarea id="body" size="lg" rows={5} placeholder='Markdown Body' /> 
-                          <Button colorScheme='twitter' width="100%" onClick={() => { setEditing(false); gql_functions.create_article(document.getElementById("title").innerHTML, document.getElementById("body").innerHTML); }}> Post </Button>
-                  </VStack>
+                    <VStack width="100%" spacing={0}  borderWidth="5px" borderRadius="10px" divider={<StackDivider borderColor='gray.200' />}>'
+                          <Heading padding="5px" borderRadius="5px" textAlign="center" color="white" width="100%" backgroundColor="gray" fontSize='xl'> Create Article </Heading>
+                          <Textarea value={titleInput} onChange={(e) => setTitleInput(e.target.value)} id="title" size="lg" overflow="auto" resize="none" rows={1} placeholder='Title' />
+                          <Textarea value={bodyInput} onChange={(e) => setBodyInput(e.target.value)} id="body" size="lg" rows={5} placeholder='Markdown Body' /> 
+                          <Button colorScheme='twitter' width="100%" onClick={post}> Post </Button>
+                    </VStack>
                   </Box>}
               {!editing && <Button onClick={()=>setEditing(true)} size="lg" rightIcon={<BsPlusCircle />}> Create Post </Button>}
               <div className={styles.grid}>

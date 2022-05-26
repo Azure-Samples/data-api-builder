@@ -19,7 +19,21 @@ const gql_functions = {
         return data.articles.items
     },
     create_article: async (title, body) => {
-        console.log(title, body);
+        const { data } = await client.mutate({
+            mutation: gql`
+            mutation CreateArticle {
+                createArticle( item: {
+                    title: "${title}",
+                    body: "${body}",
+                    status: 2,
+                }
+                )
+                 {
+                    id
+                 }
+            }`
+        });
+        return data;
     }
 
 }
