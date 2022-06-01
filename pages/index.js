@@ -2,31 +2,15 @@ import Head from 'next/head'
 import Image from 'next/image'
 import React, { useState, useEffect } from 'react';
 
-import { gql, useQuery } from "@apollo/client";
-import client from "../apollo-client";
-
 import gql_functions from "../gql-utilities"
 
 import styles from '../styles/Home.module.css'
 
 // Chakra UI Imports
 import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box, CircularProgress } from '@chakra-ui/react'
-import { BsPlusCircle } from "react-icons/bs";
+import { BsPlusCircle, BsTrash } from "react-icons/bs";
 
 
-//export async function getStaticProps() {
-    
-//    const data = await gql_functions.get_articles();
-//    console.log(data)
-
-//    return {
-//        props: {
-//            articles: data,
-//        },
-//        revalidate: 1
-//    };
-//}
-//let articles = null;
 
 export default function Home() {
 
@@ -45,11 +29,15 @@ export default function Home() {
     }, [isFetched])
 
     const post = async () => {
+        closeEditor();
+        setIsFetched(false);
+        await gql_functions.create_article(titleInput, bodyInput);
+    }
+
+    const closeEditor = () => {
         setEditing(false);
         setTitleInput("");
         setBodyInput("");
-        setIsFetched(false);
-        await gql_functions.create_article(titleInput, bodyInput);
     }
 
 
@@ -72,11 +60,15 @@ export default function Home() {
         </p>
               {editing &&
                   <Box backgroundColor="white" padding="20px" width="33%" borderRadius="20px">
-                    <VStack width="100%" spacing={0}  borderWidth="5px" borderRadius="10px" divider={<StackDivider borderColor='gray.200' />}>'
+                    <VStack width="100%" spacing={0}  alignItems="none" borderWidth="5px" borderRadius="10px" divider={<StackDivider borderColor='gray.200' />}>'
                           <Heading padding="5px" borderRadius="5px" textAlign="center" color="white" width="100%" backgroundColor="gray" fontSize='xl'> Create Article </Heading>
                           <Textarea value={titleInput} onChange={(e) => setTitleInput(e.target.value)} id="title" size="lg" overflow="auto" resize="none" rows={1} placeholder='Title' />
                           <Textarea value={bodyInput} onChange={(e) => setBodyInput(e.target.value)} id="body" size="lg" rows={5} placeholder='Markdown Body' /> 
-                          <Button colorScheme='twitter' width="100%" onClick={post}> Post </Button>
+                          <ButtonGroup isAttached colorScheme="twitter">
+                              <Button variant="outline" width="50%" onClick={closeEditor} leftIcon={<BsTrash />}>Discard</Button>
+                              <Button colorScheme='twitter' width="50%" onClick={post}> Post </Button>
+                          </ButtonGroup>
+                          
                     </VStack>
                   </Box>}
               {!editing && <Button onClick={()=>setEditing(true)} size="lg" rightIcon={<BsPlusCircle />}> Create Post </Button>}
