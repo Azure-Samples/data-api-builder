@@ -2,6 +2,7 @@ import { gql, useQuery } from "@apollo/client";
 import client from "./apollo-client";
 
 const gql_functions = {
+
     get_statuses: async () => {
         const { data } = await client.query({
             query: gql`
