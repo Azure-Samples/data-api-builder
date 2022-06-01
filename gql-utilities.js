@@ -56,7 +56,7 @@ const gql_functions = {
             mutation CreateArticle {
                 createArticle( item: {
                     title: "${title}",
-                    body: "${body}",
+                    body: """${body}""",
                     status: 2,
                 }
                 )
