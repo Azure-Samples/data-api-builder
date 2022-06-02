@@ -1,1 +1,1 @@
-node .\index.js --file .\todo.gql
+node .\index.js --file %1

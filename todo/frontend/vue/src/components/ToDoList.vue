@@ -161,7 +161,11 @@ export default {
       if (!todo.title) {
         this.removeTodo(todo);
       } else {
-        fetch(API, {headers: HEADERS, method: "POST", body: JSON.stringify({query:`mutation { editTodo(id: ${todo.id}, title: "${todo.title}" ) { id } }`})});						
+        fetch(API, {
+          headers: HEADERS, 
+          method: "POST", 
+          body: JSON.stringify({query:`mutation { updateTodo(id: ${todo.id}, item: {title: "${todo.title}"} ) { id } }`})
+        });						
       }
     },
 

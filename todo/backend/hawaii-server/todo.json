@@ -1,0 +1,37 @@
+{
+  "$schema": "../schemas/hawaii.draft-01.schema.json",
+  "data-source": {
+    "database-type": "mssql",
+    "connection-string": "Server=localhost;Database=HawaiiTest;User ID=HawaiiUser;Password=2JMsPL-skjr7!p4BaR;TrustServerCertificate=true"
+  },
+  "runtime": {
+    "host": {
+      "mode": "development",
+      "authentication": {
+        "provider": "EasyAuth"
+      }
+    },
+    "rest": {
+      "enabled": true
+    },
+    "graphql": {
+      "enabled": true
+    }
+  },
+  "entities": {
+    "todo": {
+      "source": "s001.todos",
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "*",
+              "include": ["id", "title", "completed"]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
