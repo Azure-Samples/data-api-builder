@@ -1,5 +1,5 @@
 {
-    "$schema": "../schemas/hawaii.draft-01.schema.json",
+    "$schema": "hawaii.draft-01.schema.json",
     "data-source": {
         "database-type": "mssql",
         "connection-string": "Server=localhost;Database=HawaiiTest;User ID=sa;Password=Passw0rd!;TrustServerCertificate=true"

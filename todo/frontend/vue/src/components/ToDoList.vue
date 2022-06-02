@@ -87,11 +87,13 @@ export default {
       this.visibility = "all";
     }
 
-    fetch(API, { headers: HEADERS, method: "POST", body: JSON.stringify({query:"{ todos { items { id, title, completed } } }"})})
-    .then(res => {
+    fetch(API, { 
+      headers: HEADERS, 
+      method: "POST", 
+      body: JSON.stringify({query:"{ todos { items { id, title, completed } } }"})
+    }).then(res => {
       return res.json();
-    })
-    .then(res => {				
+    }).then(res => {				
       this.todos = res == null ? [] : res.data.todos.items;
     })    
   },
@@ -100,10 +102,8 @@ export default {
     activeTodos: function () { return this.todos.filter(todo => !todo.completed) },
 
     completedTodos: function () { return this.todos.filter(todo => todo.completed) },
-
-    filteredTodos: function () {
-      return filters[this.visibility](this.todos);
-    }    
+    
+    filteredTodos: function () { return filters[this.visibility](this.todos); }    
   },
 
   methods: {
@@ -113,8 +113,8 @@ export default {
 
       fetch(API, {
         headers: HEADERS, 
-        method: "POST", body: 
-        JSON.stringify({query:`mutation { createTodo(item:{title: "${value}", completed: false}) {id, title, completed } }`})
+        method: "POST", 
+        body: JSON.stringify({query:`mutation { createTodo(item:{title: "${value}", completed: false}) {id, title, completed } }`})
       }).then(res => {					
         if (res.ok) {												
           this.newTodo = ''
@@ -161,7 +161,11 @@ export default {
       if (!todo.title) {
         this.removeTodo(todo);
       } else {
-        fetch(API, {headers: HEADERS, method: "POST", body: JSON.stringify({query:`mutation { editTodo(id: ${todo.id}, title: "${todo.title}" ) { id } }`})});						
+        fetch(API, {
+          headers: HEADERS, 
+          method: "POST", 
+          body: JSON.stringify({query:`mutation { updateTodo(id: ${todo.id}, item:{title: "${todo.title}"}) { id } }`})
+        });						
       }
     },
 
