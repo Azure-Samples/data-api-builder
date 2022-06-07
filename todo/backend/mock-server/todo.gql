@@ -1,0 +1,18 @@
+type Query {
+    todos (first: Int, after: String): TodoConnection!
+}
+
+type Todo 
+{
+    id: Int!
+    title: String!
+	completed: Boolean!    	
+    owner: String!
+}
+
+type TodoConnection 
+{
+    items: [Todo!]!
+    hasNextPage: Boolean!
+    endCursor: String!
+}
