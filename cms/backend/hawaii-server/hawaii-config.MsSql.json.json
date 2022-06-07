@@ -1,0 +1,159 @@
+{
+  "$schema": "../../project-hawaii/playground/hawaii.draft-01.schema.json",
+  "data-source": {
+    "database-type": "mssql",
+    "connection-string": "Server=tcp:127.0.0.1,1433;Database=cms-db;User ID=admin;Password="
+  },
+  "mssql": {
+    "set-session-context": false
+  },
+  "runtime": {
+    "rest": {
+      "enabled": true,
+      "path": "/api"
+    },
+    "graphql": {
+      "enabled": true,
+      "path": "/graphql",
+      "allow-introspection": true
+    },
+    "host": {
+      "mode": "Development",
+      "cors": {
+        "origins": [ "http://localhost:3000" ],
+        "allow-credentials": false
+      },
+      "authentication": {
+        "provider": "EasyAuth",
+        "jwt": {
+          "audience": "",
+          "issuer": "",
+          "issuer-key": ""
+        }
+      }
+    }
+  },
+  "entities": {
+    "User": {
+      "source": "users",
+      "rest": true,
+      "graphql": true,
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": []
+        },
+        {
+          "role": "authenticated",
+          "actions": [
+            {
+              "action": "create",
+              "policy": {}
+            },
+            {
+              "action": "read",
+              "policy": {},
+              "fields": {
+                "include": [ "*" ]
+              }
+            },
+            {
+              "action": "update",
+              "policy": {}
+            },
+            {
+              "action": "delete",
+              "policy": {}
+            }
+          ]
+        }
+      ],
+      "relationships": {
+        "articles": {
+          "cardinality": "many",
+          "target.entity": "Article",
+          "linking.object": "user_article_link",
+          "linking.source.fields": [ "user_id" ],
+          "linking.target.fields": [ "article_id" ]
+        }
+      }
+    },
+    "Article": {
+      "source": "articles",
+      "rest": true,
+      "graphql": true,
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "read",
+              "policy": {}
+            }
+          ]
+        },
+        {
+          "role": "authenticated",
+          "actions": [
+            {
+              "action": "create",
+              "policy": {}
+            },
+            "read",
+            {
+              "action": "update",
+              "policy": {},
+              "fields": {
+                "include": [ "*" ],
+                "exclude": [ "id" ]
+              }
+            },
+            {
+              "action": "delete",
+              "policy": {}
+            }
+          ]
+        }
+      ],
+      "relationships": {
+        "users": {
+          "cardinality": "many",
+          "target.entity": "User",
+          "linking.object": "user_article_link",
+          "linking.source.fields": [ "article_id" ],
+          "linking.target.fields": [ "user_id" ]
+        },
+        "article_statuses": {
+          "cardinality": "one",
+          "target.entity": "Status",
+          "source.fields": [ "status" ],
+          "target.fields": [ "id" ]
+        }
+      }
+    },
+    "Status": {
+      "source": "article_statuses",
+      "rest": true,
+      "graphql": true,
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [ "read" ]
+        },
+        {
+          "role": "authenticated",
+          "actions": [ "read" ]
+        }
+      ],
+      "relationships": {
+        "articles": {
+          "cardinality": "many",
+          "target.entity": "Article",
+          "source.fields": [ "id" ],
+          "target.fields": [ "status" ]
+        }
+      }
+    }
+  }
+
+}
