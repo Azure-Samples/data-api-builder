@@ -20,20 +20,34 @@ export default function Home() {
     const [titleInput, setTitleInput] = useState("");
     const [bodyInput, setBodyInput] = useState("");
 
-    // Listen on change of isFetched to refetch data
-    useEffect(() => {
+    // Utility function for (re)fetching articles
+    const fetch_articles = async () => {
         gql_functions.get_articles().then(data => {
             setArticles(data);
-            setIsFetched(true);
         });
-    }, [isFetched])
-
-    const post = async () => {
-        closeEditor();
-        setIsFetched(false);
-        await gql_functions.create_article(titleInput, bodyInput);
     }
 
+    // Initial data fetching
+    useEffect(() => {
+        if (!isFetched) {
+            fetch_articles();
+        }
+    }, [])
+
+    // Remove loading animation on data being fetched
+    useEffect(() => {
+        setIsFetched(true);
+    }, [articles])
+
+    // Create an article and trigger data refetch, which triggers page rerender
+    const post = async () => {
+        closeEditor();
+        setIsFetched(false); //triggers loading animation
+        await gql_functions.create_article(titleInput, bodyInput);
+        await fetch_articles();
+    }
+
+    // Utility function for closing the editor interface
     const closeEditor = () => {
         setEditing(false);
         setTitleInput("");
