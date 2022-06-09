@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import Link from "next/link";
+import { msalInstance } from "../pages/auth/index.js"
 import {
     Box,
     Flex,
@@ -32,6 +33,11 @@ const NavLink = ({ children }) => (
     </Link>
 );
 
+const logout = (setUser) => {
+    msalInstance.setActiveAccount(null);
+    setUser(null);
+}
+
 export default function Header({ user, setUser }) {
     const { colorMode, toggleColorMode } = useColorMode();
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -39,7 +45,7 @@ export default function Header({ user, setUser }) {
         <>
             <Box bg={useColorModeValue('gray.100', 'gray.900')} px={4}>
                 <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
-                    <Box></Box>
+                    <Box>{user != null ? `Welcome, ${user}` : ""}</Box>
 
                     <Flex alignItems={'center'}>
                         <Stack direction={'row'} spacing={7}>
@@ -54,7 +60,7 @@ export default function Header({ user, setUser }) {
                                     </Link>
                                 }
                                 {user != null &&  
-                                    <Box>Welcome, {user}</Box>
+                                    <Button as="a" onClick={()=>logout(setUser)}> Sign Out </Button>
                                 }
                                     </Center>
                         </Stack>

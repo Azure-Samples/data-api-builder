@@ -12,7 +12,7 @@ import { BsPlusCircle, BsTrash } from "react-icons/bs";
 
 
 
-export default function Home() {
+export default function Home({ user, setUser }) {
 
     const [articles, setArticles] = useState([]);
     const [isFetched, setIsFetched] = useState(false);
@@ -72,7 +72,7 @@ export default function Home() {
                   Made with <a href="https://nextjs.org">Next.js</a>, apollo gql, and Azure data gateway.
           
         </p>
-              {editing &&
+              {user != null && editing &&
                   <Box backgroundColor="white" padding="20px" width="33%" borderRadius="20px">
                     <VStack width="100%" spacing={0}  alignItems="none" borderWidth="5px" borderRadius="10px" divider={<StackDivider borderColor='gray.200' />}>'
                           <Heading padding="5px" borderRadius="5px" textAlign="center" color="white" width="100%" backgroundColor="gray" fontSize='xl'> Create Article </Heading>
@@ -85,8 +85,8 @@ export default function Home() {
                           
                     </VStack>
                   </Box>}
-              {!editing && <Button onClick={()=>setEditing(true)} size="lg" rightIcon={<BsPlusCircle />}> Create Post </Button>}
-              <div className={styles.grid}>
+              {user != null && !editing && <Button onClick={()=>setEditing(true)} size="lg" rightIcon={<BsPlusCircle />}> Create Post </Button>}
+              {user != null && <div className={styles.grid}>
                   {!isFetched && <div className={styles.card}><CircularProgress isIndeterminate color='green.300' /></div>}
                   {articles.slice(0).reverse().map((article) => (
                       <div key={article.id} className={styles.card}>
@@ -97,7 +97,8 @@ export default function Home() {
                       </div>
 
                   ))}
-              </div>
+              </div>}
+
       </main>
 
       <footer className={styles.footer}>

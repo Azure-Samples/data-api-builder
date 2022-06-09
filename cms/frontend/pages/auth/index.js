@@ -18,7 +18,7 @@ const msalConfig = {
     }
 };
 
-const msalInstance = new msal.PublicClientApplication(msalConfig);
+export const msalInstance = new msal.PublicClientApplication(msalConfig);
 
 async function auth(setUser, router) {
     msalInstance.acquireTokenSilent({}).then(tokenResponse => {
@@ -26,7 +26,9 @@ async function auth(setUser, router) {
         setUser(tokenResponse.account.username);
         router.push("/");
     }).catch(async (error) => {
-        console.log(error);
+        if (error.errorCode === "no_account_error") {
+            console.log("No active account set, initiate interactive login")
+        }
         // fallback to interaction when silent call fails
         msalInstance.acquireTokenPopup({}).then(tokenResponse => {
             console.log(tokenResponse);
