@@ -41,14 +41,18 @@ const NavLink = ({ children }) => (
     </Link>
 );
 
-const logout = (setUser) => {
-    msalInstance.setActiveAccount(null);
+const logout = async (setUser) => {
+    const currentAccount = await msalInstance.getActiveAccount();
+    await msalInstance.logoutPopup(
+        {
+            account: currentAccount,
+            postLogoutRedirectUri: "http://localhost:3000/auth"
+        });
     setUser(null);
 }
 
 export default function Header({ user, setUser }) {
     const { colorMode, toggleColorMode } = useColorMode();
-    const { isOpen, onOpen, onClose } = useDisclosure();
     return (
         <>
             <Box bg={useColorModeValue('gray.100', 'gray.900')} px={4}>
@@ -64,11 +68,11 @@ export default function Header({ user, setUser }) {
                                     <Center>
                                 {user == null &&
                                     <Link href="auth" >
-                                        <Button as="a"> Sign In </Button>
+                                        <Button> Sign In </Button>
                                     </Link>
                                 }
                                 {user != null &&  
-                                    <Button as="a" onClick={()=>logout(setUser)}> Sign Out </Button>
+                                    <Button onClick={()=>logout(setUser)}> Sign Out </Button>
                                 }
                                     </Center>
                         </Stack>
