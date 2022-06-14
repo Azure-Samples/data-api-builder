@@ -1,15 +1,19 @@
 .container {
-  padding: 0 2rem;
-  background-color:whitesmoke;
 }
 
 .main {
   min-height: 100vh;
-  padding: 4rem 0;
+  padding: 0 0 4rem 0;
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.header {
+  width: 100%;
+  padding: 5rem 0 3rem 0;
+
 }
 
 .footer {
@@ -51,14 +55,13 @@
 }
 
 .description {
-  margin: 4rem 0;
+  margin: 2rem 0;
   line-height: 1.5;
   font-size: 1.5rem;
 }
 
 .code {
   white-space: pre-wrap;
-  background: #fafafa;
   border-radius: 5px;
   padding: 0.5rem;
   font-size: 1.1rem;

@@ -29,7 +29,12 @@ const gql_functions = {
                         status
                     } 
                 }
-            }`
+            }`,
+            context: {
+                headers: {
+                    "x-ms-api-role":"me."
+                }
+            }
         });
         return data.articles.items
     },

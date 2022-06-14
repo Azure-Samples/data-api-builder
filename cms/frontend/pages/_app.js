@@ -3,7 +3,7 @@ import '../styles/globals.css'
 import { ApolloProvider } from "@apollo/client";
 import client from "../apollo-client";
 
-import { ChakraProvider } from '@chakra-ui/react'
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 
 import Header from "../components/header.js"
 
