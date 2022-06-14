@@ -9,9 +9,19 @@ import Header from "../components/header.js"
 
 import React, { useState, useEffect } from 'react';
 
-function MyApp({ Component, pageProps }) {
+import { msalInstance } from "../auth_config"
 
+async function getActiveUser(setUser) {
+    const activeAccount = await msalInstance.getActiveAccount();
+    setUser(activeAccount == null ? null : activeAccount.username)
+}
+
+function MyApp({ Component, pageProps }) {
     const [user, setUser] = useState(null);
+    useEffect(() => {
+        getActiveUser(setUser);
+    }, []);
+
     return (
         <ChakraProvider>
             <ApolloProvider client={client}>

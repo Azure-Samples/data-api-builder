@@ -1,6 +1,10 @@
-import { ReactNode } from 'react';
+// Next Imports 
 import Link from "next/link";
-import { msalInstance } from "../pages/auth/index.js"
+
+// React Imports
+import { ReactNode } from 'react';
+
+// Chakra UI Imports
 import {
     Box,
     Flex,
@@ -18,6 +22,10 @@ import {
     Center,
 } from '@chakra-ui/react';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons';
+
+// Module Imports
+import { msalInstance } from "../auth_config"
+
 
 const NavLink = ({ children }) => (
     <Link
