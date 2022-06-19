@@ -16,5 +16,4 @@ The Tour of Super Heroes App built with Angular, Hawaii and Azure Cosmos DB  wit
 
 ## e-Commerce App
 
-The e-Commerce App built with Angular, Hawaii and Azure Cosmos DB with
-end to end business logic.
+The e-Commerce App built with Angular, Hawaii and Azure Cosmos DB with end to end business logic.
