@@ -16,20 +16,20 @@ import { SiMicrosoftazure } from "react-icons/si";
 // Module Imports
 import { acquireToken } from '../../auth_config'
 
-export default function Auth({ user, setUser }) {
+export default function Auth({ user, setUser, accessToken, setAccessToken }) {
 
     const router = useRouter()
-    const authenticate = () => acquireToken(setUser, router);
+    const authenticate = () => acquireToken(setUser, router, setAccessToken);
 
     return (
-        <div className={styles.container} style={{overflow: "hidden"} }>
+        <div className={styles.container}>
             <Head>
                 <title>Authenticate</title>
             </Head>
             <main className={styles.main}>
                 <Center p={8} mt={'2%'}>
                     <VStack spacing={10}>
-                        <Image src="/msft.png" alt="Microsoft Logo" width={150} height={100} quality={100} />
+                        <Image src="/msft.png" alt="Microsoft Logo" width={150} height={100} quality={1} />
                     <Box
                         w={'500px'}
                         bg={useColorModeValue('white', 'gray.800')}

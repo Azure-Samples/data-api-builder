@@ -57,7 +57,7 @@ export default function Header({ user, setUser }) {
         <>
             <Box bg={useColorModeValue('gray.100', 'gray.900')} px={4}>
                 <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
-                    <Box>{user != null ? `Welcome, ${user}` : ""}</Box>
+                    <Box>{user != null ? `Welcome, ${user.username}` : ""}</Box>
 
                     <Flex alignItems={'center'}>
                         <Stack direction={'row'} spacing={7}>

@@ -1,7 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import client from "./apollo-client";
 
-const gql_functions = {
+export const gql_functions = {
 
     get_statuses: async () => {
         const { data } = await client.query({
@@ -146,5 +146,3 @@ const gql_functions = {
     }
     
 }
-
-export default gql_functions;
