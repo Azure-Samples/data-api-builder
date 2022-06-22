@@ -12,7 +12,8 @@ import styles from '../../styles/Home.module.css'
 // Chakra UI Imports
 import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box, CircularProgress, Center, Stack, Text, useColorModeValue } from '@chakra-ui/react'
 import { BsPlusCircle, BsTrash } from "react-icons/bs";
-import { SiMicrosoftazure } from "react-icons/si"; 
+import { SiMicrosoftazure } from "react-icons/si";
+
 // Module Imports
 import { acquireToken } from '../../auth_config'
 

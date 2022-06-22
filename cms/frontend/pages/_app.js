@@ -1,14 +1,21 @@
-import '../styles/globals.css'
+// Next Imports
+import { useRouter } from 'next/router'
 
-import { ApolloProvider } from "@apollo/client";
-import client from "../apollo-client";
-
-import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
-
-import Header from "../components/header.js"
-
+// React Imports
 import React, { useState, useEffect } from 'react';
 
+// Styles
+import '../styles/globals.css'
+
+// Chakra UI Imports
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
+
+// Apollo Imports
+import { ApolloProvider } from "@apollo/client";
+
+// Module Imports
+import client from "../apollo-client";
+import Header from "../components/header.js"
 import { msalInstance, scopes } from "../auth_config"
 
 async function checkActiveUser(setUser, setAccessToken, setCacheChecked) {
@@ -30,6 +37,7 @@ function MyApp({ Component, pageProps }) {
     const [user, setUser] = useState(null);
     const [accessToken, setAccessToken] = useState(null);
     const [cacheChecked, setCacheChecked] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         checkActiveUser(setUser, setAccessToken, setCacheChecked);

@@ -20,8 +20,10 @@ import {
     Stack,
     useColorMode,
     Center,
+    Icon
 } from '@chakra-ui/react';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons';
+import { AiFillHome } from 'react-icons/ai';
 
 // Module Imports
 import { msalInstance } from "../auth_config"
@@ -57,6 +59,9 @@ export default function Header({ user, setUser }) {
         <>
             <Box bg={useColorModeValue('gray.100', 'gray.900')} px={4}>
                 <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
+                    <Link href="/">
+                        <Button><Icon as={AiFillHome} boxSize={5} /></Button>
+                    </Link>
                     <Box>{user != null ? `Welcome, ${user.username}` : ""}</Box>
 
                     <Flex alignItems={'center'}>
@@ -67,7 +72,7 @@ export default function Header({ user, setUser }) {
                                     <br />
                                     <Center>
                                 {user == null &&
-                                    <Link href="auth" >
+                                    <Link href="/auth" >
                                         <Button> Sign In </Button>
                                     </Link>
                                 }

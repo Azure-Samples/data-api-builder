@@ -1,15 +1,21 @@
+// Next Imports
 import Head from 'next/head'
 import Image from 'next/image'
+import Link from 'next/link'
+
+// React Imports
 import React, { useState, useEffect } from 'react';
 
-//import { gql_functions as func } from "../gql-utilities"
-import { rest_functions as func } from "../rest-utilities"
-
+// Styles
 import styles from '../styles/Home.module.css'
 
 // Chakra UI Imports
 import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box, CircularProgress, useColorModeValue, Text } from '@chakra-ui/react'
 import { BsPlusCircle, BsTrash } from "react-icons/bs";
+
+// Module Imports
+//import { gql_functions as func } from "../gql-utilities"
+import { rest_functions as func } from "../rest-utilities"
 
 
 
@@ -71,7 +77,7 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
               <Box bg={bgcolor} className={styles.header}>
               <h1 className={styles.title}>
                 Welcome to Hawaii-CMS!
-              </h1>
+                  </h1>
 
               <p className={styles.description}>
                   Made with <a href="https://nextjs.org">Next.js</a>, apollo gql, and Azure data gateway.
@@ -80,7 +86,7 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
             </Box>
               {user != null && editing &&
                   <Box bg={bgcolor} padding="20px" width="50%" borderRadius="20px" margin="2rem 0">
-                    <VStack width="100%" spacing={0}  alignItems="none" borderWidth="5px" borderRadius="10px" divider={<StackDivider borderColor='gray.200' />}>'
+                    <VStack width="100%" spacing={0}  alignItems="none" borderWidth="5px" borderRadius="10px" divider={<StackDivider borderColor='gray.200' />}>
                           <Heading padding="5px" borderRadius="5px" textAlign="center" color="white" width="100%" backgroundColor="gray" fontSize='xl'> Create Article </Heading>
                           <Textarea value={titleInput} onChange={(e) => setTitleInput(e.target.value)} id="title" size="lg" overflow="auto" resize="none" rows={1} placeholder='Title' />
                           <Textarea value={bodyInput} onChange={(e) => setBodyInput(e.target.value)} id="body" size="lg" rows={5} placeholder='Markdown Body' /> 
