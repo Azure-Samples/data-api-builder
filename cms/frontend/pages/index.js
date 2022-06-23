@@ -15,7 +15,7 @@ import { BsPlusCircle, BsTrash } from "react-icons/bs";
 
 // Module Imports
 //import { gql_functions as func } from "../gql-utilities"
-import { rest_functions as func } from "../rest-utilities"
+import { rest_functions as func } from "../rest-utilities.ts"
 
 
 
@@ -28,9 +28,18 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
 
     // Utility function for (re)fetching articles
     const fetch_articles = async () => {
-        func.get_articles(accessToken).then(data => {
-            setArticles(data);
-        }).catch(err => console.log(err));
+        func.get_all_articles(accessToken).then(data => {
+            if (data != null && data != undefined) {
+                setArticles(data);
+            } else {
+                console.log('null/undefined data')
+                // let the loader know to stop on edge case of no data
+                setIsFetched(true);
+            }
+        }).catch(err => {
+            console.log(err);
+            setIsFetched(true);
+        });
     }
 
     // Initial data fetching (wait for cache to be checked)
@@ -51,7 +60,7 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
     const post = async () => {
         closeEditor();
         setIsFetched(false); //triggers loading animation
-        await func.create_article(titleInput, bodyInput);
+        await func.create_article(accessToken, titleInput, bodyInput);
         await fetch_articles();
     }
 
@@ -84,7 +93,7 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
           
               </p>
             </Box>
-              {user != null && editing &&
+              {editing &&
                   <Box bg={bgcolor} padding="20px" width="50%" borderRadius="20px" margin="2rem 0">
                     <VStack width="100%" spacing={0}  alignItems="none" borderWidth="5px" borderRadius="10px" divider={<StackDivider borderColor='gray.200' />}>
                           <Heading padding="5px" borderRadius="5px" textAlign="center" color="white" width="100%" backgroundColor="gray" fontSize='xl'> Create Article </Heading>
@@ -97,8 +106,8 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
                           
                     </VStack>
                   </Box>}
-              {user != null && !editing && <Button onClick={()=>setEditing(true)} size="lg" margin="2rem 0" rightIcon={<BsPlusCircle />}> Create Post </Button>}
-              {user != null && <div className={styles.grid}>
+              {!editing && <Button onClick={()=>setEditing(true)} size="lg" margin="2rem 0" rightIcon={<BsPlusCircle />}> Create Post </Button>}
+              <div className={styles.grid}>
                   {!isFetched && <div className={styles.card}><CircularProgress isIndeterminate color='green.300' /></div>}
                   {articles.slice(0).reverse().map((article) => (
                       <Box key={article.id} className={styles.card} bg={bgcolor}>
@@ -109,7 +118,7 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
                       </Box>
 
                   ))}
-              </div>}
+              </div>
 
       </main>
 

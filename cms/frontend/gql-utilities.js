@@ -17,7 +17,7 @@ export const gql_functions = {
         });
         return data.statuses.items;
     },
-    get_articles: async () => {
+    get_all_articles: async () => {
         const { data } = await client.query({
             query: gql`
             {

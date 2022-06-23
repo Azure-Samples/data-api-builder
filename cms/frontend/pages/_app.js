@@ -16,20 +16,24 @@ import { ApolloProvider } from "@apollo/client";
 // Module Imports
 import client from "../apollo-client";
 import Header from "../components/header.js"
+import SimpleSidebar from "../components/sidebar.js"
 import { msalInstance, scopes } from "../auth_config"
 
 async function checkActiveUser(setUser, setAccessToken, setCacheChecked) {
     const activeAccount = await msalInstance.getActiveAccount();
-    console.log(activeAccount)
+    console.log(activeAccount == null ? "no active account found, cannot silently login" : `using active account with username: ${activeAccount.username}`)
     if (activeAccount != null) {
         msalInstance.acquireTokenSilent({ account: activeAccount, scopes: scopes }).then(tokenResponse => {
             setAccessToken(tokenResponse.accessToken);
             setUser(activeAccount);
             setCacheChecked(true);
+            console.log(tokenResponse)
         }).catch(err => {
             console.log("active account found but interaction needed")
             setCacheChecked(true);
         })
+    } else {
+        setCacheChecked(true);
     }
 }
 
@@ -47,7 +51,9 @@ function MyApp({ Component, pageProps }) {
         <ChakraProvider>
             <ApolloProvider client={client}>
                 <Header user={user} setUser={setUser} />
-                <Component {...pageProps} user={user} setUser={setUser} accessToken={accessToken} setAccessToken={setAccessToken} cacheChecked={cacheChecked} />
+                <SimpleSidebar>
+                    <Component {...pageProps} user={user} setUser={setUser} accessToken={accessToken} setAccessToken={setAccessToken} cacheChecked={cacheChecked} />
+                </SimpleSidebar>
             </ApolloProvider>
         </ChakraProvider>
     )

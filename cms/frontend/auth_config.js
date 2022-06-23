@@ -14,7 +14,7 @@ export const scopes = ['api://bbff8fdb-c073-4466-9463-170744cbd2e2/REST.Endpoint
     'api://bbff8fdb-c073-4466-9463-170744cbd2e2/GraphQL.ReadWrite']
 
 export async function acquireToken(setUser, router, setAccessToken) {
-    msalInstance.acquireTokenSilent({scopes: scopes}).then(tokenResponse => {
+    msalInstance.acquireTokenSilent({ scopes: scopes }).then(tokenResponse => {
         console.log(tokenResponse);
         setUser(tokenResponse.account);
         setAccessToken(tokenResponse.accessToken)
