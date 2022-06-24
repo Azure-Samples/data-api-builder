@@ -1,0 +1,177 @@
+{
+    "$schema": "../../project-hawaii/playground/hawaii.draft-01.schema.json",
+    "data-source": {
+        "database-type": "mssql",
+        "connection-string": "Server=tcp:127.0.0.1,1433;Database=cms-db;User ID=admin;Password=<REPLACEME>"
+    },
+    "mssql": {
+        "set-session-context": false
+    },
+    "runtime": {
+        "rest": {
+            "enabled": true,
+            "path": "/api"
+        },
+        "graphql": {
+            "enabled": true,
+            "path": "/graphql",
+            "allow-introspection": true
+        },
+        "host": {
+            "mode": "Production",
+            "cors": {
+                "origins": [ "http://localhost:3000" ],
+                "allow-credentials": true
+            },
+            "authentication": {
+                "provider": "AzureAD",
+                "jwt": {
+                    "audience": "bbff8fdb-c073-4466-9463-170744cbd2e2",
+                    "issuer": "https://login.microsoftonline.com/291bf275-ea78-4cde-84ea-21309a43a567/v2.0",
+                    "issuer-key": ""
+                }
+            }
+        }
+    },
+    "entities": {
+        "User": {
+            "source": "users",
+            "rest": true,
+            "graphql": true,
+            "permissions": [
+                {
+                    "role": "anonymous",
+                    "actions": []
+                },
+                {
+                    "role": "authenticated",
+                    "actions": [
+                        {
+                            "action": "create",
+                            "policy": {
+                                "database": ""
+                            },
+                            "fields": {}
+                        },
+                        {
+                            "action": "read",
+                            "policy": {
+                                "database": "@claims.oid eq @item.guid"
+                            },
+                            "fields": {
+                                "include": [ "*" ]
+                            }
+                        },
+                        {
+                            "action": "update",
+                            "policy": {
+                                "database": "@claims.oid eq @item.guid"
+                            },
+                            "fields": {}
+                        },
+                        {
+                            "action": "delete",
+                            "policy": {
+                                "database": "@claims.oid eq @item.guid"
+                            },
+                            "fields": {}
+                        }
+                    ]
+                }
+            ],
+            "relationships": {
+                "articles": {
+                    "cardinality": "many",
+                    "target.entity": "Article",
+                    "source.fields": [ "guid" ],
+                    "target.fields": [ "author_id" ]
+                }
+            }
+        },
+        "Article": {
+            "source": "articles",
+            "rest": true,
+            "graphql": true,
+            "permissions": [
+                {
+                    "role": "anonymous",
+                    "actions": [
+                        {
+                            "action": "read",
+                            "policy": {
+                                "database": "@item.status eq 2"
+                            },
+                            "fields": {
+                                "include": [ "*" ],
+                                "exclude": []
+                            }
+                        }
+                    ]
+                },
+                {
+                    "role": "authenticated",
+                    "actions": [
+                        "create",
+                        {
+                            "action": "read",
+                            "policy": {
+                                "database": "@claims.oid eq @item.author_id"
+                            }
+                        },
+                        {
+                            "action": "update",
+                            "policy": {},
+                            "fields": {
+                                "include": [ "*" ],
+                                "exclude": [ "id" ]
+                            }
+                        },
+                        {
+                            "action": "delete",
+                            "policy": {},
+                            "fields": {}
+                        }
+                    ]
+                }
+            ],
+            "relationships": {
+                "users": {
+                    "cardinality": "one",
+                    "target.entity": "User",
+                    "source.fields": [ "author_id" ],
+                    "target.fields": [ "guid" ]
+                },
+                "article_statuses": {
+                    "cardinality": "one",
+                    "target.entity": "Status",
+                    "source.fields": [ "status" ],
+                    "target.fields": [ "id" ]
+                }
+            }
+        },
+        "Status": {
+            "source": "article_statuses",
+            "rest": true,
+            "graphql": true,
+            "permissions": [
+                {
+                    "role": "anonymous",
+                    "actions": [ "read" ]
+                },
+                {
+                    "role": "authenticated",
+                    "actions": [ "read" ]
+                }
+            ],
+            "relationships": {
+                "articles": {
+                    "cardinality": "many",
+                    "target.entity": "Article",
+                    "source.fields": [ "id" ],
+                    "target.fields": [ "status" ]
+                }
+            }
+        }
+    }
+
+}
