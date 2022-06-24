@@ -51,9 +51,12 @@ function MyApp({ Component, pageProps }) {
         <ChakraProvider>
             <ApolloProvider client={client}>
                 <Header user={user} setUser={setUser} />
-                <SimpleSidebar>
+                {router.pathname != "/auth" && <SimpleSidebar>
                     <Component {...pageProps} user={user} setUser={setUser} accessToken={accessToken} setAccessToken={setAccessToken} cacheChecked={cacheChecked} />
-                </SimpleSidebar>
+                </SimpleSidebar>}
+                {router.pathname == "/auth" &&
+                    <Component {...pageProps} user={user} setUser={setUser} accessToken={accessToken} setAccessToken={setAccessToken} cacheChecked={cacheChecked} />
+                }
             </ApolloProvider>
         </ChakraProvider>
     )

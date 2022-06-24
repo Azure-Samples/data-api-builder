@@ -62,7 +62,7 @@ export default function Header({ user, setUser }) {
                     <Link href="/">
                         <Button><Icon as={AiFillHome} boxSize={5} /></Button>
                     </Link>
-                    <Box>{user != null ? `Welcome, ${user.username}` : ""}</Box>
+                    <Box mr={'auto'}>{user != null ? `Welcome, ${user.username}` : ""}</Box>
 
                     <Flex alignItems={'center'}>
                         <Stack direction={'row'} spacing={7}>

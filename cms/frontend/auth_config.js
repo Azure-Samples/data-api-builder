@@ -1,4 +1,5 @@
 import * as msal from "@azure/msal-browser";
+import { rest_functions as func } from "./rest-utilities.ts"
 
 const msalConfig = {
     auth: {
@@ -26,10 +27,12 @@ export async function acquireToken(setUser, router, setAccessToken) {
         // fallback to interaction when silent call fails
         msalInstance.acquireTokenPopup({ scopes: scopes }).then(tokenResponse => {
             console.log(tokenResponse);
+            func.get_or_create_user(tokenResponse.accessToken);
             setUser(tokenResponse.account);
             setAccessToken(tokenResponse.accessToken)
             msalInstance.setActiveAccount(tokenResponse.account);
             router.push("/");
+
         }).catch(error => {
             console.log(error);
         });

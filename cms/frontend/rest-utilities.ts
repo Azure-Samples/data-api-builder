@@ -1,3 +1,4 @@
+import { msalInstance } from "./auth_config"
 
 const rest_request_base = async (url, options) => {
     return fetch(url, options).then(async response => {
@@ -71,6 +72,24 @@ export const rest_functions = {
             'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
             'Authorization': accessToken == null ? null : `Bearer ${accessToken}`
         });
+        console.log(user_data);
+
+        // if empty/user not yet in db
+        if (user_data == undefined || user_data == null || (Array.isArray(user_data.value) && user_data.value.length == 0)) {
+            const activeAccount = await msalInstance.getActiveAccount();
+            const data = await post_request_base("https://localhost:5001/User",
+                {
+                    'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
+                    'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                {
+                    "guid": activeAccount.idTokenClaims.oid,
+                    "fname": activeAccount.name.split(' ')[0],
+                    "lname": activeAccount.name.split(' ')[1],
+                    "email": activeAccount.username
+                });
+        }
         //
     }
 }

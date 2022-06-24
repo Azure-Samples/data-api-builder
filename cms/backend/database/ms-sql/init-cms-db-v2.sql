@@ -10,7 +10,7 @@ CREATE TABLE article_statuses(
 );
 
 CREATE TABLE users(
-	guid int PRIMARY KEY,
+	guid varchar(50) PRIMARY KEY,
 	fname varchar(100) NOT NULL,
 	lname varchar(100) NOT NULL,
 	email varchar(100) NOT NULL CHECK(email like '_%@_%._%')
@@ -22,7 +22,7 @@ CREATE TABLE articles(
 	body varchar(max) NOT NULL,
 	status int NOT NULL FOREIGN KEY REFERENCES article_statuses(id)
 	ON UPDATE CASCADE, -- ON DELETE will reject/cannot delete a status from the database if an article is assigned to it
-	author_id int NOT NULL FOREIGN KEY REFERENCES users(guid)
+	author_id varchar(50) NOT NULL FOREIGN KEY REFERENCES users(guid)
 	ON UPDATE CASCADE
 	ON DELETE CASCADE -- ON DELETE of author from user table, all associated articles are trashed
 );
