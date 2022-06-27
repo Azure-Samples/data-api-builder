@@ -53,6 +53,7 @@ export const rest_functions = {
         return data != null && data != undefined ? data.value : data;
     },
     create_article: async (accessToken, titleInput, bodyInput) => {
+        const activeAccount = await msalInstance.getActiveAccount();
         const data = await post_request_base("https://localhost:5001/Article",
             {
                 'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
@@ -62,9 +63,10 @@ export const rest_functions = {
             {
                 "title": titleInput,
                 "body": bodyInput,
-                "status": 1
+                "status": 1,
+                "author_id": activeAccount.idTokenClaims.oid
             });
-        return data.value;
+        return data != null && data != undefined ? data.value : data;
     },
     get_or_create_user: async (accessToken) => {
         // check if user already exists (is guid in users table)

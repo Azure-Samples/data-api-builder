@@ -13,6 +13,9 @@ import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 // Apollo Imports
 import { ApolloProvider } from "@apollo/client";
 
+// Msal Imports
+import { MsalProvider, AuthenticatedTemplate, UnauthenticatedTemplate, MsalAuthenticationTemplate } from "@azure/msal-react";
+
 // Module Imports
 import client from "../apollo-client";
 import Header from "../components/header.js"
@@ -48,17 +51,24 @@ function MyApp({ Component, pageProps }) {
     }, []);
 
     return (
-        <ChakraProvider>
-            <ApolloProvider client={client}>
-                <Header user={user} setUser={setUser} />
-                {router.pathname != "/auth" && <SimpleSidebar>
-                    <Component {...pageProps} user={user} setUser={setUser} accessToken={accessToken} setAccessToken={setAccessToken} cacheChecked={cacheChecked} />
-                </SimpleSidebar>}
-                {router.pathname == "/auth" &&
-                    <Component {...pageProps} user={user} setUser={setUser} accessToken={accessToken} setAccessToken={setAccessToken} cacheChecked={cacheChecked} />
-                }
-            </ApolloProvider>
-        </ChakraProvider>
+        <MsalProvider instance={msalInstance}>
+            <ChakraProvider>
+                <ApolloProvider client={client}>
+                    <Header user={user} setUser={setUser} />
+                    <AuthenticatedTemplate>
+                        {/* Don't render sidebar on sign in page */}
+                        {router.pathname != "/auth" && <SimpleSidebar>
+                            <Component {...pageProps} user={user} setUser={setUser} accessToken={accessToken} setAccessToken={setAccessToken} cacheChecked={cacheChecked} />
+                        </SimpleSidebar>}
+                        {router.pathname == "/auth" && <Component {...pageProps} user={user} setUser={setUser} accessToken={accessToken} setAccessToken={setAccessToken} cacheChecked={cacheChecked} /> }
+                    </AuthenticatedTemplate>
+                    {/* Don't render sidebar until authenticated */}
+                    <UnauthenticatedTemplate>
+                        <Component {...pageProps} user={user} setUser={setUser} accessToken={accessToken} setAccessToken={setAccessToken} cacheChecked={cacheChecked} />
+                    </UnauthenticatedTemplate>
+                </ApolloProvider>
+            </ChakraProvider>
+        </MsalProvider>
     )
 }
 

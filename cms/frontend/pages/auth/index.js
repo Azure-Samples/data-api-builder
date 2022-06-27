@@ -11,16 +11,47 @@ import styles from '../../styles/Home.module.css'
 
 // Chakra UI Imports
 import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box, CircularProgress, Center, Stack, Text, useColorModeValue } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import { BsPlusCircle, BsTrash } from "react-icons/bs";
 import { SiMicrosoftazure } from "react-icons/si";
 
 // Module Imports
 import { acquireToken } from '../../auth_config'
+import { BrowserAuthError } from '../../node_modules/@azure/msal-browser/dist/index';
 
 export default function Auth({ user, setUser, accessToken, setAccessToken }) {
 
     const router = useRouter()
-    const authenticate = () => acquireToken(setUser, router, setAccessToken);
+    const toast = useToast()
+    const authenticate = async () => {
+        acquireToken(setUser, router, setAccessToken).then(loginResponse => {
+            if (loginResponse instanceof BrowserAuthError && loginResponse.errorCode == "user_cancelled") {
+                toast.closeAll()
+                toast({
+                    title: 'Login failed',
+                    description: "Unsuccessful login attempt",
+                    status: 'error',
+                    duration: 9000,
+                    isClosable: true,
+                })
+            } else {
+                // If successfull login, set state vars, flash success, navigate back home
+                setUser(loginResponse.account);
+                setAccessToken(loginResponse.accessToken)
+                toast.closeAll()
+                toast({
+                    title: 'Login success',
+                    description: "You've successfully logged in",
+                    status: 'success',
+                    duration: 9000,
+                    isClosable: true,
+                });
+                // Wait a second to navigate away for success to flash
+                setTimeout(() => router.push("/"), 1000);
+            }
+        })
+        
+    };
 
     return (
         <div className={styles.container}>

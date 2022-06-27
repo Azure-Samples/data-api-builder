@@ -14,27 +14,24 @@ export const msalInstance = new msal.PublicClientApplication(msalConfig);
 export const scopes = ['api://bbff8fdb-c073-4466-9463-170744cbd2e2/REST.EndpointAccess',
     'api://bbff8fdb-c073-4466-9463-170744cbd2e2/GraphQL.ReadWrite']
 
-export async function acquireToken(setUser, router, setAccessToken) {
-    msalInstance.acquireTokenSilent({ scopes: scopes }).then(tokenResponse => {
+export async function acquireToken() {
+    return msalInstance.acquireTokenSilent({ scopes: scopes }).then(tokenResponse => {
         console.log(tokenResponse);
-        setUser(tokenResponse.account);
-        setAccessToken(tokenResponse.accessToken)
-        router.push("/");
+        return tokenResponse;
     }).catch(async (error) => {
         if (error.errorCode === "no_account_error") {
             console.log("No active account set, initiate interactive login")
+        } else {
+            return error;
         }
         // fallback to interaction when silent call fails
-        msalInstance.acquireTokenPopup({ scopes: scopes }).then(tokenResponse => {
+        return msalInstance.acquireTokenPopup({ scopes: scopes }).then(tokenResponse => {
             console.log(tokenResponse);
             func.get_or_create_user(tokenResponse.accessToken);
-            setUser(tokenResponse.account);
-            setAccessToken(tokenResponse.accessToken)
             msalInstance.setActiveAccount(tokenResponse.account);
-            router.push("/");
-
+            return tokenResponse;
         }).catch(error => {
-            console.log(error);
+            return error;
         });
     });
 }

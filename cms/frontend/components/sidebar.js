@@ -1,5 +1,6 @@
 // Next Imports 
 import Link from "next/link";
+import { useRouter } from 'next/router'
 
 // React Imports
 import React from 'react';
@@ -19,6 +20,7 @@ import {
     BoxProps,
     FlexProps,
 } from '@chakra-ui/react';
+import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 
 // Icon Imports
 import {
@@ -78,46 +80,65 @@ const SidebarContent = ({ onClose, ...rest }) => {
             pos="fixed"
             h="full"
             {...rest}>
+
             <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
                 <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
                 </Text>
                 <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
             </Flex>
-            {LinkItems.map((link) => (
-                <a key={link.name} href={link.href} >
-                    <NavItem icon={link.icon}>
-                        {link.name}
-                    </NavItem>
-                </a>    
-            ))}
+
+            <Tabs orientation="vertical">
+                <TabList>
+                    {LinkItems.map((link) => (
+                        <NavItem key={link.name} href={link.href} icon={link.icon}>
+                            {link.name}
+                        </NavItem>    
+                    ))}
+                </TabList>
+            </Tabs>
         </Box>
     );
 };
 
-const NavItem = ({ icon, children }) => {
+const NavItem = ({ icon, href, children }) => {
+
     return (
-            <Flex
-                align="center"
-                p="4"
-                mx="4"
-                borderRadius="lg"
-                role="group"
-                cursor="pointer"
-                _hover={{
-                    bg: 'cyan.400',
-                    color: 'white',
-                }}>
-                {icon && (
-                    <Icon
-                        mr="4"
-                        fontSize="16"
-                        _groupHover={{
-                            color: 'white',
-                        }}
-                        as={icon}
-                    />
-                )}
-                {children}
-            </Flex>
+        
+        <Link href={href}>
+            <Tab _focus={{
+                outline: 'none',
+                }}
+                >
+                <Flex
+                    align="center"
+                    p="4"
+                    w="full"
+                    h="full"
+                    borderRadius="lg"
+                    role="group"
+                    cursor="pointer"
+                    _hover={{
+                        bg: 'blue.400',
+                        color: 'white',
+                    }}
+                    _active={{
+                        bg: 'blue.600',
+                        color: 'white'
+                    }}
+                    >
+                    {icon && (
+                        <Icon
+                            mr="4"
+                            fontSize="16"
+                            _groupHover={{
+                                color: 'white',
+                            }}
+                            as={icon}
+                        />
+                    )}
+                    {children}
+                    </Flex>
+                </Tab>
+        </Link>
     );
 };
