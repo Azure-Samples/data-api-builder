@@ -59,24 +59,31 @@
   font-size: 1.5rem;
 }
 
-.code {
-  white-space: pre-wrap;
-  border-radius: 5px;
-  padding: 0.5rem;
-  font-size: 1.1rem;
-  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-    Bitstream Vera Sans Mono, Courier New, monospace;
-}
+
 
 .grid {
   display: grid;
   width: 100%;
 }
 
+.loader {
+    margin: 1rem;
+    padding: 1.5rem;
+    color: inherit;
+    text-decoration: none;
+    text-align: center;
+    border: 1px solid #eaeaea;
+    border-radius: 10px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+    width: 90%;
+    background-color: white;
+    margin-inline: auto;
+}
+
+
 .card {
   margin: 1rem;
   padding: 1.5rem;
-  text-align: center;
   color: inherit;
   text-decoration: none;
   border: 1px solid #eaeaea;
@@ -119,4 +126,3 @@
     flex-direction: column;
   }
 }
-

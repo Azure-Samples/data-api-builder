@@ -71,6 +71,8 @@ export default function SimpleSidebar({ children }) {
 
 
 const SidebarContent = ({ onClose, ...rest }) => {
+    const router = useRouter();
+    const [tabIndex, setTabIndex] = React.useState(LinkItems.map(x=>x.href).indexOf(router.pathname)); //fancily ensure tabindex maintained on page refresh
     return (
         <Box
             bg={useColorModeValue('white', 'gray.900')}
@@ -87,7 +89,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
                 <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
             </Flex>
 
-            <Tabs orientation="vertical">
+            <Tabs orientation="vertical" index={tabIndex} onChange={setTabIndex}>
                 <TabList>
                     {LinkItems.map((link) => (
                         <NavItem key={link.name} href={link.href} icon={link.icon}>

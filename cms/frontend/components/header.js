@@ -1,5 +1,6 @@
 // Next Imports 
 import Link from "next/link";
+import { useRouter } from 'next/router'
 
 // React Imports
 import { ReactNode } from 'react';
@@ -43,7 +44,7 @@ const NavLink = ({ children }) => (
     </Link>
 );
 
-const logout = async (setUser) => {
+const logout = async (setUser, router) => {
     const currentAccount = await msalInstance.getActiveAccount();
     await msalInstance.logoutPopup(
         {
@@ -51,10 +52,14 @@ const logout = async (setUser) => {
             postLogoutRedirectUri: "http://localhost:3000/auth"
         });
     setUser(null);
+    router.push("/");
+    // TODO: Error check logout and toast to client
 }
 
 export default function Header({ user, setUser }) {
     const { colorMode, toggleColorMode } = useColorMode();
+    const router = useRouter();
+
     return (
         <>
             <Box bg={useColorModeValue('gray.100', 'gray.900')} px={4} >
@@ -77,7 +82,7 @@ export default function Header({ user, setUser }) {
                                     </Link>
                                 }
                                 {user != null &&  
-                                    <Button onClick={()=>logout(setUser)}> Sign Out </Button>
+                                    <Button onClick={()=>logout(setUser, router)}> Sign Out </Button>
                                 }
                                     </Center>
                         </Stack>

@@ -5,9 +5,12 @@ import Link from 'next/link'
 
 // React Imports
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 // Styles
 import styles from '../styles/Home.module.css'
+import mdStyles from '../styles/github-markdown.module.css'
 
 // Chakra UI Imports
 import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box, CircularProgress, useColorModeValue, Text } from '@chakra-ui/react'
@@ -20,6 +23,7 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-reac
 // Module Imports
 //import { gql_functions as func } from "../gql-utilities"
 import { rest_functions as func } from "../rest-utilities.ts"
+import Footer from "../components/footer"
 
 
 
@@ -117,29 +121,23 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
               </AuthenticatedTemplate>
               <div className={styles.grid}>
                   {!isFetched &&
-                      <div className={styles.card}>
+                      <div className={styles.loader}>
                           <CircularProgress isIndeterminate color='green.300' />
                       </div>}
                       {articles.slice(0).reverse().map((article) => (
                           <Box key={article.id} className={styles.card} bg={bgcolor}>
-                              <Heading>
-                                  {article.title}
-                              </Heading>
-                              <code style={{ "background": codebgcolor }} className={styles.code}>{article.body}</code>
+                              <div className={mdStyles["markdown-body"]}>
+                                  <h1 style={{ fontSize: "2.5em" }}> {article.title} </h1>
+                                  <ReactMarkdown className={mdStyles["markdown-body"]} remarkPlugins={[remarkGfm]}>
+                                      {article.body}
+                                  </ReactMarkdown>
+                              </div>
                           </Box>
                       ))}
               </div>
 
           </main>
-
-          <footer className={styles.footer}>
-              <a href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app" target="_blank" rel="noopener noreferrer">
-                  Powered by{' '}
-                  <span className={styles.logo}>
-                      <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-                  </span>
-              </a>
-          </footer>
+          <Footer/>
       </Box>
   )
 }
