@@ -1,5 +1,6 @@
 import { msalInstance } from "./auth_config"
 
+// Helpers
 const rest_request_base = async (url, options) => {
     return fetch(url, options).then(async response => {
         if (response.ok) {
@@ -30,12 +31,27 @@ const post_request_base = async (url, headers, body) => {
         method: 'POST',
         headers: headers,
         body: JSON.stringify(body)
-    })
+    });
+}
+
+const patch_request_base = async (url, headers, body) => {
+    return await rest_request_base(url, {
+        method: 'PATCH',
+        headers: headers,
+        body: JSON.stringify(body)
+    });
+}
+
+const delete_request_base = async (url, headers) => {
+    return await rest_request_base(url, {
+        method: 'DELETE',
+        headers: headers
+    });
 }
 
 
-
 export const rest_functions = {
+    // Article utilities
     get_all_articles: async (accessToken) => {
         const data = await get_request_base("https://localhost:5001/Article",
         {
@@ -52,7 +68,7 @@ export const rest_functions = {
         });
         return data != null && data != undefined ? data.value : data;
     },
-    create_article: async (accessToken, titleInput, bodyInput) => {
+    create_article: async (accessToken, titleInput, bodyInput, status) => {
         const activeAccount = await msalInstance.getActiveAccount();
         const data = await post_request_base("https://localhost:5001/Article",
             {
@@ -68,6 +84,30 @@ export const rest_functions = {
             });
         return data != null && data != undefined ? data.value : data;
     },
+    update_article: async (accessToken, articleID, newTitle, newBody, newStatus) => {
+        const data = await patch_request_base(`https://localhost:5001/Article/id/${articleID}`,
+            {
+                'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
+                'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            {
+                "title": newTitle,
+                "body": newBody,
+                "status": newStatus,
+            });
+        return data != null && data != undefined ? data.value : data;
+    },
+    delete_article: async (accessToken, articleID) => {
+        const data = await delete_request_base(`https://localhost:5001/Article/id/${articleID}`,
+            {
+                'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
+                'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            });
+        return data != null && data != undefined ? data.value : data;
+    },
+    // User utilities
     get_or_create_user: async (accessToken) => {
         // check if user already exists (is guid in users table)
         const user_data = await get_request_base("https://localhost:5001/User", {
@@ -93,7 +133,31 @@ export const rest_functions = {
                 });
         }
         //
+    },
+    update_user: async (accessToken, userID, fname, lname, email) => {
+        const data = await patch_request_base(`https://localhost:5001/User/guid/${userID}`,
+            {
+                'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
+                'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            {
+                "fname": fname,
+                "lname": lname,
+                "email": email
+            });
+        return data != null && data != undefined ? data.value : data;
+    },
+    delete_user: async (accessToken, userID) => {
+        const data = await delete_request_base(`https://localhost:5001/User/guid/${userID}`,
+            {
+                'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
+                'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            });
+        return data != null && data != undefined ? data.value : data;
     }
+
 }
 
 
