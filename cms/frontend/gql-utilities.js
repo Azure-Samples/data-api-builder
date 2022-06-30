@@ -1,7 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import client from "./apollo-client";
 
-const gql_functions = {
+export const gql_functions = {
 
     get_statuses: async () => {
         const { data } = await client.query({
@@ -17,7 +17,7 @@ const gql_functions = {
         });
         return data.statuses.items;
     },
-    get_articles: async () => {
+    get_all_articles: async () => {
         const { data } = await client.query({
             query: gql`
             {
@@ -29,7 +29,12 @@ const gql_functions = {
                         status
                     } 
                 }
-            }`
+            }`,
+            context: {
+                headers: {
+                    "x-ms-api-role":"me."
+                }
+            }
         });
         return data.articles.items
     },
@@ -141,5 +146,3 @@ const gql_functions = {
     }
     
 }
-
-export default gql_functions;
