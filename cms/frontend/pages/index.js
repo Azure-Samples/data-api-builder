@@ -36,11 +36,12 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
 
     // Utility function for (re)fetching articles
     const fetch_articles = async () => {
-        func.get_all_articles(accessToken).then(data => {
+        func.get_all_articles(accessToken, true).then(data => {
             if (data != null && data != undefined) {
                 setArticles(data);
             } else {
                 console.log('null/undefined data')
+                setArticles([]);
                 // let the loader know to stop on edge case of no data
                 setIsFetched(true);
             }
@@ -125,15 +126,20 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
                           <CircularProgress isIndeterminate color='green.300' />
                       </div>}
                       {articles.slice(0).reverse().map((article) => (
-                          <Box key={article.id} className={styles.card} bg={bgcolor}>
-                              <div className={mdStyles["markdown-body"]}>
-                                  <h1 style={{ fontSize: "2.5em" }}> {article.title} </h1>
-                                  <ReactMarkdown className={mdStyles["markdown-body"]} remarkPlugins={[remarkGfm]}>
-                                      {article.body}
-                                  </ReactMarkdown>
-                              </div>
-                          </Box>
-                      ))}
+                        <Box key={article.id} className={styles.card} bg={bgcolor}>
+                            <div className={styles.post_header}>
+                                <h3> {article.author_name} {article.published} </h3>
+                            </div>
+                            
+                            <div className={mdStyles["markdown-body"]} style={{ padding: "1.5em", borderRadius: "10px" }} >
+                                <h1 style={{ fontSize: "2.5em"}}> {article.title} </h1>
+                                <ReactMarkdown className={mdStyles["markdown-body"]} remarkPlugins={[remarkGfm]} >
+                                    {article.body}
+                                </ReactMarkdown>
+                            </div>
+                        </Box>
+
+                    ))}
               </div>
 
           </main>

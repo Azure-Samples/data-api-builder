@@ -18,36 +18,69 @@ import { SiMicrosoftazure } from "react-icons/si";
 // Module Imports
 import { acquireToken } from '../../auth_config'
 import { BrowserAuthError } from '../../node_modules/@azure/msal-browser/dist/index';
+import { rest_functions as func } from "../../rest-utilities.ts"
+
 
 export default function Auth({ user, setUser, accessToken, setAccessToken }) {
 
     const router = useRouter()
     const toast = useToast()
+
+    const error_toast = ({ title, description }) => {
+        toast.closeAll();
+        toast({
+            title: title,
+            description: description,
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+        })
+    }
+
+    const success_toast = ({ title, description }) => {
+        toast.closeAll();
+        toast({
+            title: title,
+            description: description,
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+        })
+    }
+
+    const flash_success = (token, toastTitle, toastDescription) => {
+        success_toast({ title: toastTitle, description: toastDescription });
+        setUser(token.account);
+        setAccessToken(token.accessToken);
+        setTimeout(() => router.push("/"), 1000);
+    }
+
     const authenticate = async () => {
-        acquireToken(setUser, router, setAccessToken).then(loginResponse => {
+        acquireToken().then(async loginResponse => {
             if (loginResponse instanceof BrowserAuthError && loginResponse.errorCode == "user_cancelled") {
-                toast.closeAll()
-                toast({
-                    title: 'Login failed',
-                    description: "Unsuccessful login attempt",
-                    status: 'error',
-                    duration: 9000,
-                    isClosable: true,
-                })
+                // user didn't complete auth flow
+                error_toast({ title: "Login Failed", description: "User Canceled Authentication" });
+
+            } else if (loginResponse instanceof Error) {
+                // couldn't obtain token for unknown reason
+                error_toast({ title: "Login Failed", description: "Unsuccessful Login Attempt" });
+
             } else {
-                // If successfull login, set state vars, flash success, navigate back home
-                setUser(loginResponse.account);
-                setAccessToken(loginResponse.accessToken)
-                toast.closeAll()
-                toast({
-                    title: 'Login success',
-                    description: "You've successfully logged in",
-                    status: 'success',
-                    duration: 9000,
-                    isClosable: true,
-                });
-                // Wait a second to navigate away for success to flash
-                setTimeout(() => router.push("/"), 1000);
+                // Successfully logged in/obtained a token
+                // Now, check if user exists - if not, create account
+                const data = await func.get_or_create_user(loginResponse.accessToken);
+                // successfull post/insert into users table
+                if (data instanceof Response && data.status == 201) {
+                    // set state vars, flash account creation success, navigate back home
+                    flash_success(loginResponse, "Account Created", "You've successfully added your account!");
+
+                } else if (Array.isArray(data.value) && data.value.length == 1) {
+                    // user already exists in db, just log them in
+                    flash_success(loginResponse, "Login Success", `Welcome back, ${data.value[0].fname}`);
+
+                } else {
+                    error_toast({ title: 'Unexpected Error', description: "Something bad happened along the way" });
+                }
             }
         })
         

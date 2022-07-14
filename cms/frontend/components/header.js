@@ -44,7 +44,7 @@ const NavLink = ({ children }) => (
     </Link>
 );
 
-const logout = async (setUser, router) => {
+const logout = async (setUser, setAccessToken, router) => {
     const currentAccount = await msalInstance.getActiveAccount();
     await msalInstance.logoutPopup(
         {
@@ -52,11 +52,12 @@ const logout = async (setUser, router) => {
             postLogoutRedirectUri: "http://localhost:3000/auth"
         });
     setUser(null);
+    setAccessToken(null);
     router.push("/");
     // TODO: Error check logout and toast to client
 }
 
-export default function Header({ user, setUser }) {
+export default function Header({ user, setUser, setAccessToken }) {
     const { colorMode, toggleColorMode } = useColorMode();
     const router = useRouter();
 
@@ -64,10 +65,10 @@ export default function Header({ user, setUser }) {
         <>
             <Box bg={useColorModeValue('gray.100', 'gray.900')} px={4} >
                 <Flex h={16} alignItems={'center'} justifyContent={'space-between'} >
-                    <Link href="/">
+                    {router.pathname == "/auth" && <Link href="/">
                         <Button><Icon as={AiFillHome} boxSize={5} /></Button>
-                    </Link>
-                    <Box mr={'auto'}>{user != null ? `Welcome, ${user.username}` : ""}</Box>
+                    </Link>}
+                    <Box mr={'auto'} ml={'1em'}>{user != null ? `Welcome, ${user.username}` : ""}</Box>
 
                     <Flex alignItems={'center'}>
                         <Stack direction={'row'} spacing={7}>
@@ -82,7 +83,7 @@ export default function Header({ user, setUser }) {
                                     </Link>
                                 }
                                 {user != null &&  
-                                    <Button onClick={()=>logout(setUser, router)}> Sign Out </Button>
+                                    <Button onClick={()=>logout(setUser, setAccessToken, router)}> Sign Out </Button>
                                 }
                                     </Center>
                         </Stack>

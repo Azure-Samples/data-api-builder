@@ -1,10 +1,11 @@
 import { msalInstance } from "./auth_config"
 
 // Helpers
-const rest_request_base = async (url, options) => {
+const rest_request_base = async (url, options, returnResponse = false) => {
     return fetch(url, options).then(async response => {
         if (response.ok) {
-            return await response.json();
+            // by default return json data, optionally return full response object
+            return returnResponse ? response : await response.json();
         } else {
             // if fetch resolves but with an unsuccessful status code
             throw response;
@@ -19,41 +20,43 @@ const rest_request_base = async (url, options) => {
     });
 }
 
-const get_request_base = async (url, headers) => {
+const get_request_base = async (url, headers, returnResponse = false) => {
     return await rest_request_base(url, {
         method: 'GET',
         headers: headers
-    });
+    }, returnResponse);
 }
 
-const post_request_base = async (url, headers, body) => {
+const post_request_base = async (url, headers, body, returnResponse = false) => {
     return await rest_request_base(url, {
         method: 'POST',
         headers: headers,
         body: JSON.stringify(body)
-    });
+    }, returnResponse);
 }
 
-const patch_request_base = async (url, headers, body) => {
+const patch_request_base = async (url, headers, body, returnResponse = false) => {
     return await rest_request_base(url, {
         method: 'PATCH',
         headers: headers,
         body: JSON.stringify(body)
-    });
+    }, returnResponse);
 }
 
-const delete_request_base = async (url, headers) => {
+const delete_request_base = async (url, headers, returnResponse = false) => {
     return await rest_request_base(url, {
         method: 'DELETE',
         headers: headers
-    });
+    }, returnResponse);
 }
 
 
 export const rest_functions = {
     // Article utilities
-    get_all_articles: async (accessToken) => {
-        const data = await get_request_base("https://localhost:5001/Article",
+    get_all_articles: async (accessToken, verbose) => {
+        // Conditionally query the article table or a view of article, author, and status tables combined
+        const url = "https://localhost:5001/Article" + (verbose ? "Detailed" : "");
+        const data = await get_request_base(url,
         {
             'X-MS-API-ROLE': 'anonymous',
             'Authorization': `Bearer ${accessToken}`
@@ -61,8 +64,9 @@ export const rest_functions = {
         });
         return data != null && data != undefined ? data.value : data;
     },
-    get_my_articles: async (accessToken) => {
-        const data = await get_request_base("https://localhost:5001/Article", {
+    get_my_articles: async (accessToken, verbose) => {
+        const url = "https://localhost:5001/Article" + (verbose ? "Detailed" : "");
+        const data = await get_request_base(url, {
             'X-MS-API-ROLE': 'authenticated',
             'Authorization': `Bearer ${accessToken}`
         });
@@ -116,10 +120,10 @@ export const rest_functions = {
         });
         console.log(user_data);
 
-        // if empty/user not yet in db
+        // if empty/user not yet in db, return post request response object
         if (user_data == undefined || user_data == null || (Array.isArray(user_data.value) && user_data.value.length == 0)) {
             const activeAccount = await msalInstance.getActiveAccount();
-            const data = await post_request_base("https://localhost:5001/User",
+            return await post_request_base("https://localhost:5001/User",
                 {
                     'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
                     'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
@@ -130,9 +134,11 @@ export const rest_functions = {
                     "fname": activeAccount.name.split(' ')[0],
                     "lname": activeAccount.name.split(' ')[1],
                     "email": activeAccount.username
-                });
+                }, true);
+        } else {
+            // else return user info that's already in db
+            return user_data;
         }
-        //
     },
     update_user: async (accessToken, userID, fname, lname, email) => {
         const data = await patch_request_base(`https://localhost:5001/User/guid/${userID}`,

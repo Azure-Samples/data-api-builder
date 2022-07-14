@@ -13,7 +13,7 @@ import styles from '../../styles/Home.module.css'
 import mdStyles from '../../styles/github-markdown.module.css'
 
 // Chakra UI Imports
-import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box, CircularProgress, useColorModeValue, Text } from '@chakra-ui/react'
+import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box, CircularProgress, useColorModeValue, Text, Tooltip } from '@chakra-ui/react'
 import { BsPlusCircle, BsTrash } from "react-icons/bs";
 
 // Module Imports
@@ -124,9 +124,13 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
                     {!isFetched && <div className={styles.loader}><CircularProgress isIndeterminate color='green.300' /></div>}
                     {articles.slice(0).reverse().map((article) => (
                         <Box key={article.id} className={styles.card} bg={bgcolor}>
-                            <div className={mdStyles["markdown-body"]}>
+                            <div className={styles.post_header}>
+                                <h3> {article.author_name} {article.published} </h3>
+                            </div>
+                            
+                            <div className={mdStyles["markdown-body"]} style={{ padding: "1.5em", borderRadius: "10px" }} >
                                 <h1 style={{ fontSize: "2.5em"}}> {article.title} </h1>
-                                <ReactMarkdown className={mdStyles["markdown-body"]} remarkPlugins={[remarkGfm]}>
+                                <ReactMarkdown className={mdStyles["markdown-body"]} remarkPlugins={[remarkGfm]} >
                                     {article.body}
                                 </ReactMarkdown>
                             </div>
