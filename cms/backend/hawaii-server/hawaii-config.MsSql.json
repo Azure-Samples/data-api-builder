@@ -180,6 +180,47 @@
           "target.fields": [ "status" ]
         }
       }
+    },
+    "ArticleDetailed": {
+      "source": {
+        "type": "view",
+        "object": "articles_detailed",
+        "key-fields": [ "id" ]
+      },
+      "rest": true,
+      "graphql": true,
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "read",
+              "policy": {
+                "database": "@item.status eq 'published'"
+              },
+              "fields": {
+                "include": [ "*" ],
+                "exclude": []
+              }
+            }
+          ]
+        },
+        {
+          "role": "authenticated",
+          "actions": [
+            {
+              "action": "read",
+              "policy": {
+                "database": "@claims.oid eq @item.author_id"
+              },
+              "fields": {
+                "include": [ "*" ],
+                "exclude": []
+              }
+            }
+          ]
+        }
+      ]
     }
   }
 
