@@ -67,7 +67,7 @@ END');
 
 -- DML
 INSERT INTO article_statuses (name) VALUES ('draft'), ('published');
-INSERT INTO users (guid, fname, lname, email) VALUES (1, 'Vinnie', 'Khanna', 't-vikhanna@microsoft.com');
+INSERT INTO users (guid, fname, lname, email) VALUES (1, 'Sean', 'Leonard', 'sean.leonard@microsoft.com');
 INSERT INTO articles (title, body, status, author_id) 
 VALUES ('lorem ipsum', '# Thebis meae grege prima de apertas invitumque
 

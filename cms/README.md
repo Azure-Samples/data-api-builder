@@ -1,6 +1,41 @@
+# Hawaii-CMS
+This is a Content Management System (CMS) built entirely on project hawaii for data management and authorization handling - a fully serverless implementation.
+
+The sample is divided into 
+- `backend` - which houses the database initialization and hawaii startup scripts 
+- `frontend` - which houses the Next.js app 
+
+## Backend Scripts
+
+### `backend/database/ms-sql`
+
+#### `init-db.bat`
+> - Runs the included `init-cms-db.sql` SQL script to initialize a fresh cms database
+> - Run in `cmd` or powershell with `./init-db`
+
+#### `init-cms-db.sql` 
+
+> - The MsSql schema the CMS uses.
+> - Run using SSMS, using the `sqlcmd` utility, or preferably just use `init-db.bat` script
+
+### `backend/hawaii-server`
+
+#### `run-server.bat` and `run-server.sh`
+> - Runs the hawaii server with the `hawaii-config.MsSql.json` configuration file included
+> - Only use after initializing database
+
+#### `run-new.bat`
+> - An all-in-one backend startup
+> - Initializes database by calling `init-db.bat` then starts up hawaii with `run-server.bat`
+> - Gives a fresh db copy every time, so if you want to persist database changes, instead choose `run-server.bat`
+
+## Frontend
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
+
+Navigate to `hawaii-cms/cms/frontend`
 
 Install the required dependencies 
 
@@ -16,13 +51,13 @@ npm run dev
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+If not launched by default, open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+For an optimized production build:
+```
+npm run build
+npm run start
+```
 
 ## Learn More
 
