@@ -1,4 +1,4 @@
-import { msalInstance } from "./auth_config"
+import { msalInstance } from "../auth_config"
 
 // Helpers
 const rest_request_base = async (url, options, returnResponse = false) => {

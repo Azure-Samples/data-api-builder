@@ -18,7 +18,7 @@ import { SiMicrosoftazure } from "react-icons/si";
 // Module Imports
 import { acquireToken } from '../../auth_config'
 import { BrowserAuthError } from '../../node_modules/@azure/msal-browser/dist/index';
-import { rest_functions as func } from "../../rest-utilities.ts"
+import { rest_functions as func } from "../../utils/rest"
 
 
 export default function Auth({ user, setUser, accessToken, setAccessToken }) {

@@ -13,7 +13,7 @@ import styles from '../styles/Home.module.css'
 import mdStyles from '../styles/github-markdown.module.css'
 
 // Chakra UI Imports
-import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box, CircularProgress, useColorModeValue, Text } from '@chakra-ui/react'
+import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box, CircularProgress, useColorModeValue, Text, Tooltip, Tag, HStack } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/react'
 import { BsPlusCircle, BsTrash } from "react-icons/bs";
 
@@ -21,10 +21,10 @@ import { BsPlusCircle, BsTrash } from "react-icons/bs";
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 
 // Module Imports
-//import { gql_functions as func } from "../gql-utilities"
-import { rest_functions as func } from "../rest-utilities.ts"
+//import { gql_functions as func } from "../utils/gql"
+import { rest_functions as func } from "../utils/rest"
+import { human_time_diff } from "../utils/misc"
 import Footer from "../components/footer"
-
 
 
 export default function Home({ user, setUser, accessToken, cacheChecked }) {
@@ -127,11 +127,19 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
                       </div>}
                       {articles.slice(0).reverse().map((article) => (
                         <Box key={article.id} className={styles.card} bg={bgcolor}>
-                            <div className={styles.post_header}>
-                                <h3> {article.author_name} {article.published} </h3>
+                              <div className={styles.post_header} style={{ backgroundColor: user != null && user.idTokenClaims.oid == article.author_id ? "#ddf4ff" : "#f6f8fa"}}>
+                                  <HStack>
+                                      <Tooltip label={article.author_email}> 
+                                          <Text fontWeight="semibold"> {article.author_name} </Text>
+                                      </Tooltip>
+                                      <Text> published {human_time_diff(article.published)} ago </Text>
+                                  </HStack>
+                                  <Tooltip label={new Date(article.published).toLocaleTimeString()}>
+                                      <Text> {new Date(article.published).toLocaleDateString()} </Text>
+                                  </Tooltip>
                             </div>
                             
-                            <div className={mdStyles["markdown-body"]} style={{ padding: "1.5em", borderRadius: "10px" }} >
+                            <div className={mdStyles["markdown-body"]} style={{ padding: "1.5em", borderRadius: "0px 0px 10px 10px" }} >
                                 <h1 style={{ fontSize: "2.5em"}}> {article.title} </h1>
                                 <ReactMarkdown className={mdStyles["markdown-body"]} remarkPlugins={[remarkGfm]} >
                                     {article.body}

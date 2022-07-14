@@ -116,16 +116,16 @@
 
 .post_header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    padding-right: 16px;
-    padding-left: 16px;
+    padding-right: 25px;
+    padding-left: 25px;
     color: black;
-    flex-direction: row-reverse;
     background-color: #f6f8fa;
     border-bottom: 1px solid #d0d7de;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-    height: 38px;
+    height: 50px;
 }
 
 .logo {
