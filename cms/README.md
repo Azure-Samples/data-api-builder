@@ -2,8 +2,26 @@
 This is a Content Management System (CMS) built entirely on project hawaii for data management and authorization handling - a fully serverless implementation.
 
 The sample is divided into 
-- `backend` - which houses the database initialization and hawaii startup scripts 
+- `backend` - which houses the database initialization scripts, hawaii startup scripts, and hawaii configuration file
 - `frontend` - which houses the Next.js app 
+
+
+<br/>
+
+> ### Config Reminder
+> 
+> Remember to replace the `connection-string` in `backend/hawaii-server/hawaii-config.MsSql.json` 
+> 1. ex: using SQL Server credentials: 
+> 
+> ```
+> "connection-string": "Server=tcp:127.0.0.1,1433;Database=cms-db;User ID=<user>;Password=<password>"
+> ```
+> 
+> 2. ex: using Windows Authentication: 
+> ```
+> "connection-string": "Server=tcp:127.0.0.1,1433;Database=cms-db;Integrated Security=true"
+> ```
+> 
 
 ## Backend Scripts
 
@@ -18,6 +36,8 @@ The sample is divided into
 > - The MsSql schema the CMS uses.
 > - Run using SSMS, using the `sqlcmd` utility, or preferably just use `init-db.bat` script
 
+<br/>
+
 ### `backend/hawaii-server`
 
 #### `run-server.bat` and `run-server.sh`
@@ -29,11 +49,13 @@ The sample is divided into
 > - Initializes database by calling `init-db.bat` then starts up hawaii with `run-server.bat`
 > - Gives a fresh db copy every time, so if you want to persist database changes, instead choose `run-server.bat`
 
+<br/>
+
 ## Frontend
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+### Getting Started
 
 Navigate to `hawaii-cms/cms/frontend`
 
@@ -59,7 +81,7 @@ npm run build
 npm run start
 ```
 
-## Learn More
+### Learn More
 
 To learn more about Next.js, take a look at the following resources:
 
@@ -68,7 +90,7 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+### Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
