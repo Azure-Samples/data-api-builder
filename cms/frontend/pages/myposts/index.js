@@ -2,6 +2,7 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 // React Imports
 import React, { useState, useEffect } from 'react';
@@ -40,10 +41,15 @@ import { createTheme, WuiProvider } from '@welcome-ui/core'
 export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
     const [articles, setArticles] = useState([]);
     const [isFetched, setIsFetched] = useState(false);
-    const [editing, setEditing] = useState(false);
     const [titleInput, setTitleInput] = useState("");
     const [bodyInput, setBodyInput] = useState("");
-    const { isOpen, onOpen, onClose } = useDisclosure()
+
+    // Have editor open depending on query params
+    // On state initialization router is undefined, so have to listen for changes
+    const router = useRouter();
+    const [editing, setEditing] = useState("create" in router.query);
+    useEffect(() => { setEditing("create" in router.query) }, [router]);
+
 
     // Utility function for (re)fetching articles
     const fetch_articles = async () => {
@@ -76,24 +82,24 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
     }, [articles])
 
     // Create a published article and trigger data refetch, which triggers page rerender
-    const post = async (close) => {
-        closeEditor(close);
+    const post = async () => {
+        closeEditor();
         setIsFetched(false); //triggers loading animation
         await func.create_article(accessToken, titleInput, bodyInput, 2);
         await fetch_articles();
     }
 
     // Create a draft article and trigger data refetch, which triggers page rerender
-    const save = async (close) => {
-        closeEditor(close);
+    const save = async () => {
+        closeEditor();
         setIsFetched(false); //triggers loading animation
         await func.create_article(accessToken, titleInput, bodyInput, 1);
         await fetch_articles();
     }
 
     // Utility function for closing the editor interface
-    const closeEditor = (close) => {
-        close();
+    const closeEditor = async () => {
+        setEditing(false);
         setTitleInput("");
         setBodyInput("");
     }
@@ -121,7 +127,7 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
                     </p>
                 </Box>
                 <AuthenticatedTemplate>
-                    <Collapse bg={bgcolor} style={{width: "100%", display: "flex"}} in={isOpen} animateOpacity>
+                    <Collapse bg={bgcolor} style={{ width: "100%" }} in={editing} animateOpacity>
                         <Box bg={bgcolor} padding="20px" width="60%" borderRadius="20px" margin="2em auto 2em auto" boxShadow={'lg'}>
                             <VStack width="100%" spacing={0} alignItems="none" borderWidth="5px" borderRadius="10px" divider={<StackDivider borderColor='gray.200' />}>
                                 <Heading padding="5px" borderRadius="5px" textAlign="center" color="white" width="100%" backgroundColor="gray" fontSize='xl'> Create Article </Heading>
@@ -129,13 +135,13 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
                                 <Textarea value={bodyInput} onChange={(e) => setBodyInput(e.target.value)} id="body" size="lg" rows={5} placeholder='Markdown Body' />
                                 <ButtonGroup isAttached colorScheme="twitter">
                                     <Tooltip label="Discard this post">
-                                        <Button flexBasis="33.333%" variant="outline" onClick={() => closeEditor(onClose)} leftIcon={<BsTrash />}>Discard</Button>
+                                        <Button flexBasis="33.333%" variant="outline" onClick={closeEditor} leftIcon={<BsTrash />}>Discard</Button>
                                     </Tooltip>
                                     <Tooltip label="Save as draft">
-                                        <Button flexBasis="33.333%" variant="outline" onClick={() => save(onClose)}> Save </Button>
+                                        <Button flexBasis="33.333%" variant="outline" onClick={save}> Save </Button>
                                     </Tooltip>
                                     <Tooltip label="Publish this post">
-                                        <Button flexBasis="33.333%" onClick={() => post(onClose)}> Post </Button>
+                                        <Button flexBasis="33.333%" onClick={post}> Post </Button>
                                     </Tooltip>
                                 </ButtonGroup>
 
@@ -143,7 +149,7 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
                         </Box>
                     </Collapse>
                     
-                    {!isOpen && <Button onClick={onOpen} border="1px" boxShadow={'lg'} borderColor="gray.300" size="lg" margin="2rem 0" rightIcon={<MdPostAdd />}> Create Post </Button>}
+                    {!editing && <Button onClick={()=>setEditing(true)} border="1px" boxShadow={'lg'} borderColor="gray.300" size="lg" margin="2rem 0" rightIcon={<MdPostAdd />}> Create Post </Button>}
                     {/*<WuiProvider theme={createTheme()}>
                     <Field label="Markdown Editor">
                         <MarkdownEditor toolbar={[]} name="welcome" placeholder="Placeholder" />

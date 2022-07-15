@@ -36,7 +36,7 @@ import { IconType } from 'react-icons';
 
 const LinkItems = [
     { name: 'Explore', icon: FiHome, href: '/' },
-    { name: 'Create Post', icon: MdPostAdd, href: '/myposts'},
+    { name: 'Create Post', icon: MdPostAdd, href: '/myposts?create=true'},
     { name: 'My Posts', icon: MdViewHeadline, href: '/myposts' },
     { name: 'My Account', icon: MdOutlineAccountCircle, href: '/myaccount' },
 ];
