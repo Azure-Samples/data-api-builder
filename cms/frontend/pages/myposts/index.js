@@ -13,8 +13,17 @@ import styles from '../../styles/Home.module.css'
 import mdStyles from '../../styles/github-markdown.module.css'
 
 // Chakra UI Imports
-import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box, CircularProgress, useColorModeValue, Text, Tooltip, Tag, HStack } from '@chakra-ui/react'
-import { BsPlusCircle, BsTrash } from "react-icons/bs";
+import {
+    Button, ButtonGroup, Icon, IconButton, Heading, Textarea, VStack,
+    StackDivider, Box, CircularProgress, useColorModeValue, Text, Tooltip,
+    Tag, HStack, Collapse, useDisclosure, useToast, Center
+} from '@chakra-ui/react'
+import { BsPlusCircle, BsTrash, BsX, BsXSquareFill } from "react-icons/bs";
+import { CloseIcon } from '@chakra-ui/icons';
+import {MdPostAdd } from 'react-icons/md';
+
+// Msal Imports
+import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 
 // Module Imports
 //import { gql_functions as func } from "../../utils/gql"
@@ -34,6 +43,7 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
     const [editing, setEditing] = useState(false);
     const [titleInput, setTitleInput] = useState("");
     const [bodyInput, setBodyInput] = useState("");
+    const { isOpen, onOpen, onClose } = useDisclosure()
 
     // Utility function for (re)fetching articles
     const fetch_articles = async () => {
@@ -65,17 +75,25 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
         }
     }, [articles])
 
-    // Create an article and trigger data refetch, which triggers page rerender
-    const post = async () => {
-        closeEditor();
+    // Create a published article and trigger data refetch, which triggers page rerender
+    const post = async (close) => {
+        closeEditor(close);
         setIsFetched(false); //triggers loading animation
-        await func.create_article(accessToken, titleInput, bodyInput);
+        await func.create_article(accessToken, titleInput, bodyInput, 2);
+        await fetch_articles();
+    }
+
+    // Create a draft article and trigger data refetch, which triggers page rerender
+    const save = async (close) => {
+        closeEditor(close);
+        setIsFetched(false); //triggers loading animation
+        await func.create_article(accessToken, titleInput, bodyInput, 1);
         await fetch_articles();
     }
 
     // Utility function for closing the editor interface
-    const closeEditor = () => {
-        setEditing(false);
+    const closeEditor = (close) => {
+        close();
         setTitleInput("");
         setBodyInput("");
     }
@@ -92,7 +110,7 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
             </Head>
 
             <main className={styles.main}>
-                <Box bg={bgcolor} className={styles.header}>
+                <Box bg={bgcolor} className={styles.header} boxShadow="md">
                     <h1 className={styles.title}>
                         View Your Posts
                     </h1>
@@ -102,59 +120,80 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
 
                     </p>
                 </Box>
-                {user != null && editing &&
-                    <Box bg={bgcolor} padding="20px" width="50%" borderRadius="20px" margin="2rem 0">
-                        <VStack width="100%" spacing={0} alignItems="none" borderWidth="5px" borderRadius="10px" divider={<StackDivider borderColor='gray.200' />}>
-                            <Heading padding="5px" borderRadius="5px" textAlign="center" color="white" width="100%" backgroundColor="gray" fontSize='xl'> Create Article </Heading>
-                            <Textarea value={titleInput} onChange={(e) => setTitleInput(e.target.value)} id="title" size="lg" overflow="auto" resize="none" rows={1} placeholder='Title' />
-                            <Textarea value={bodyInput} onChange={(e) => setBodyInput(e.target.value)} id="body" size="lg" rows={5} placeholder='Markdown Body' />
-                            <ButtonGroup isAttached colorScheme="twitter">
-                                <Button variant="outline" width="50%" onClick={closeEditor} leftIcon={<BsTrash />}>Discard</Button>
-                                <Button colorScheme='twitter' width="50%" onClick={post}> Post </Button>
-                            </ButtonGroup>
-
-                        </VStack>
-                    </Box>}
-                {user != null && !editing && <Button onClick={() => setEditing(true)} size="lg" margin="2rem 0" rightIcon={<BsPlusCircle />}> Create Post </Button>}
-                {/*<WuiProvider theme={createTheme()}>
-                <Field label="Markdown Editor">
-                    <MarkdownEditor toolbar={[]} name="welcome" placeholder="Placeholder" />
-                    </Field>
-                </WuiProvider>*/}
-                <div className={styles.grid}>
-                    {!isFetched && <div className={styles.loader}><CircularProgress isIndeterminate color='green.300' /></div>}
-                    {articles.slice(0).reverse().map((article) => (
-                        <Box key={article.id} className={styles.card} bg={bgcolor}>
-                            <div className={styles.post_header} style={{ backgroundColor: "#ddf4ff" }}>
-                                <HStack>
-                                    <Tooltip label={user.username}>
-                                        <Text fontWeight="semibold"> {user.idTokenClaims.name} </Text>
+                <AuthenticatedTemplate>
+                    <Collapse bg={bgcolor} style={{width: "100%", display: "flex"}} in={isOpen} animateOpacity>
+                        <Box bg={bgcolor} padding="20px" width="60%" borderRadius="20px" margin="2em auto 2em auto" boxShadow={'lg'}>
+                            <VStack width="100%" spacing={0} alignItems="none" borderWidth="5px" borderRadius="10px" divider={<StackDivider borderColor='gray.200' />}>
+                                <Heading padding="5px" borderRadius="5px" textAlign="center" color="white" width="100%" backgroundColor="gray" fontSize='xl'> Create Article </Heading>
+                                <Textarea value={titleInput} onChange={(e) => setTitleInput(e.target.value)} id="title" size="lg" overflow="auto" resize="none" rows={1} placeholder='Title' />
+                                <Textarea value={bodyInput} onChange={(e) => setBodyInput(e.target.value)} id="body" size="lg" rows={5} placeholder='Markdown Body' />
+                                <ButtonGroup isAttached colorScheme="twitter">
+                                    <Tooltip label="Discard this post">
+                                        <Button flexBasis="33.333%" variant="outline" onClick={() => closeEditor(onClose)} leftIcon={<BsTrash />}>Discard</Button>
                                     </Tooltip>
-                                    <Tooltip label={
-                                        <span>
-                                            {new Date(article.published).toLocaleDateString()}
-                                            <span> &#183; </span>
-                                            {new Date(article.published).toLocaleTimeString()}
-                                        </span>}>
-                                        <Text> {article.status == 2 ? "published" : "saved"} {human_time_diff(article.published)} ago </Text>
+                                    <Tooltip label="Save as draft">
+                                        <Button flexBasis="33.333%" variant="outline" onClick={() => save(onClose)}> Save </Button>
                                     </Tooltip>
-                                </HStack>
-                                <HStack>
-                                    
-                                </HStack>
-                            </div>
+                                    <Tooltip label="Publish this post">
+                                        <Button flexBasis="33.333%" onClick={() => post(onClose)}> Post </Button>
+                                    </Tooltip>
+                                </ButtonGroup>
 
-                            <div className={mdStyles["markdown-body"]} style={{ padding: "1.5em", borderRadius: "0px 0px 10px 10px" }} >
-                                <h1 style={{ fontSize: "2.5em"}}> {article.title} </h1>
-                                <ReactMarkdown className={mdStyles["markdown-body"]} remarkPlugins={[remarkGfm]} >
-                                    {article.body}
-                                </ReactMarkdown>
-                            </div>
+                            </VStack>
                         </Box>
+                    </Collapse>
+                    
+                    {!isOpen && <Button onClick={onOpen} border="1px" boxShadow={'lg'} borderColor="gray.300" size="lg" margin="2rem 0" rightIcon={<MdPostAdd />}> Create Post </Button>}
+                    {/*<WuiProvider theme={createTheme()}>
+                    <Field label="Markdown Editor">
+                        <MarkdownEditor toolbar={[]} name="welcome" placeholder="Placeholder" />
+                        </Field>
+                    </WuiProvider>*/}
+                    <div className={styles.grid}>
+                        {!isFetched && <div className={styles.loader}><CircularProgress isIndeterminate color='green.300' /></div>}
+                        {articles.slice(0).reverse().map((article) => (
+                            <Box key={article.id} className={styles.card} bg={bgcolor} boxShadow={'lg'}>
+                                <div className={styles.post_header} style={{ backgroundColor: "#ddf4ff" }}>
+                                    <HStack>
+                                        <Tooltip label={user.username}>
+                                            <Text fontWeight="semibold"> {user.idTokenClaims.name} </Text>
+                                        </Tooltip>
+                                        <Tooltip label={
+                                            <span>
+                                                {new Date(article.published).toLocaleDateString()}
+                                                <span> &#183; </span>
+                                                {new Date(article.published).toLocaleTimeString()}
+                                            </span>}>
+                                            <Text> {article.status == 2 ? "published" : "saved"} {human_time_diff(article.published)} ago </Text>
+                                        </Tooltip>
+                                    </HStack>
+                                    <HStack>
+                                        <Tooltip label="Edit this post" shouldWrapChildren>
 
-                    ))}
-                </div>
+                                        </Tooltip>
+                                        <Tooltip label="Delete this post" shouldWrapChildren>
+                                            <Center>
+                                            <Icon as={BsX} boxSize="1.5em" cursor="pointer" _hover={{ color: "red" }} />
+                                            </Center>
+                                        </Tooltip>
 
+                                    </HStack>
+                                </div>
+
+                                <div className={mdStyles["markdown-body"]} style={{ padding: "1.5em", borderRadius: "0px 0px 10px 10px" }} >
+                                    <h1 style={{ fontSize: "2.5em" }}> {article.title} </h1>
+                                    <ReactMarkdown className={mdStyles["markdown-body"]} remarkPlugins={[remarkGfm]} >
+                                        {article.body}
+                                    </ReactMarkdown>
+                                </div>
+                            </Box>
+
+                        ))}
+                    </div>
+                </AuthenticatedTemplate>
+                <UnauthenticatedTemplate>
+                    <h1> Sorry, you can't access this </h1>
+                </UnauthenticatedTemplate>
             </main>
             <Footer />
         </Box>

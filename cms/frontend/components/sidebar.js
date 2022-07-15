@@ -31,21 +31,21 @@ import {
     FiSettings,
     FiMenu,
 } from 'react-icons/fi';
-import { MdOutlineAccountCircle } from 'react-icons/md';
+import { MdOutlineAccountCircle, MdViewHeadline, MdPostAdd } from 'react-icons/md';
 import { IconType } from 'react-icons';
 
 const LinkItems = [
     { name: 'Explore', icon: FiHome, href: '/' },
-    { name: 'My Posts', icon: FiTrendingUp, href: '/myposts' },
+    { name: 'Create Post', icon: MdPostAdd, href: '/myposts'},
+    { name: 'My Posts', icon: MdViewHeadline, href: '/myposts' },
     { name: 'My Account', icon: MdOutlineAccountCircle, href: '/myaccount' },
-    { name: 'Settings', icon: FiSettings, href: '/' },
 ];
 
 export default function SimpleSidebar({ children }) {
     const { isOpen, onOpen, onClose } = useDisclosure();
     return (
         <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
-            <SidebarContent
+            <SidebarContent boxShadow="xl"
                 bg={useColorModeValue('gray.100', 'gray.900')}
                 display={{ base: 'none', md: 'block' }}
                 onClose={onClose}
@@ -131,7 +131,7 @@ const NavItem = ({ icon, href, children }) => {
                     {icon && (
                         <Icon
                             mr="4"
-                            fontSize="16"
+                            fontSize="20"
                             _groupHover={{
                                 color: 'white',
                             }}

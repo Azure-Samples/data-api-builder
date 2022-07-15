@@ -10,8 +10,10 @@ import React, { useState, useEffect } from 'react';
 import styles from '../../styles/Home.module.css'
 
 // Chakra UI Imports
-import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box, CircularProgress, Center, Stack, Text, useColorModeValue } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/react'
+import {
+    Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider,
+    Box, CircularProgress, Center, Stack, Text, useColorModeValue, useToast
+} from '@chakra-ui/react'
 import { BsPlusCircle, BsTrash } from "react-icons/bs";
 import { SiMicrosoftazure } from "react-icons/si";
 

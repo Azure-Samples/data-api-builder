@@ -72,7 +72,7 @@ export const rest_functions = {
         });
         return data != null && data != undefined ? data.value : data;
     },
-    create_article: async (accessToken, titleInput, bodyInput, status) => {
+    create_article: async (accessToken, titleInput, bodyInput, status = 1) => {
         const activeAccount = await msalInstance.getActiveAccount();
         const data = await post_request_base("https://localhost:5001/Article",
             {
@@ -83,7 +83,7 @@ export const rest_functions = {
             {
                 "title": titleInput,
                 "body": bodyInput,
-                "status": 1,
+                "status": status,
                 "author_id": activeAccount.idTokenClaims.oid
             });
         return data != null && data != undefined ? data.value : data;

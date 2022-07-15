@@ -13,8 +13,11 @@ import styles from '../styles/Home.module.css'
 import mdStyles from '../styles/github-markdown.module.css'
 
 // Chakra UI Imports
-import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box, CircularProgress, useColorModeValue, Text, Tooltip, Tag, HStack } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/react'
+import {
+    Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider,
+    Box, CircularProgress, useColorModeValue, Text, Tooltip, Tag, HStack,
+    useToast
+} from '@chakra-ui/react'
 import { BsPlusCircle, BsTrash } from "react-icons/bs";
 
 // Msal Imports
@@ -93,41 +96,24 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
           </Head>
 
           <main className={styles.main}>
-              <Box bg={bgcolor} className={styles.header}>
+              <Box bg={bgcolor} className={styles.header} boxShadow="md">
                   <h1 className={styles.title}>
                       Welcome to Hawaii-CMS!
                   </h1>
 
                   <p className={styles.description}>
-                      Made with <a href="https://nextjs.org">Next.js</a>, apollo gql, and Azure data gateway.
+                      Made with <a href="https://nextjs.org">Next.js</a>, MS SQL, and Azure Data API Builder
                   </p>
               </Box>
-              <AuthenticatedTemplate>
-                  {editing &&
-                      <Box bg={bgcolor} padding="20px" width="50%" borderRadius="20px" margin="2rem 0">
-                          <VStack width="100%" spacing={0} alignItems="none" borderWidth="5px" borderRadius="10px" divider={<StackDivider borderColor='gray.200' />}>
-                              <Heading padding="5px" borderRadius="5px" textAlign="center" color="white" width="100%" backgroundColor="gray" fontSize='xl'> Create Article </Heading>
-                              <Textarea value={titleInput} onChange={(e) => setTitleInput(e.target.value)} id="title" size="lg" overflow="auto" resize="none" rows={1} placeholder='Title' />
-                              <Textarea value={bodyInput} onChange={(e) => setBodyInput(e.target.value)} id="body" size="lg" rows={5} placeholder='Markdown Body' />
-                              <ButtonGroup isAttached colorScheme="twitter">
-                                  <Button variant="outline" width="50%" onClick={closeEditor} leftIcon={<BsTrash />}>Discard</Button>
-                                  <Button colorScheme='twitter' width="50%" onClick={post}> Post </Button>
-                              </ButtonGroup>
-
-                          </VStack>
-                      </Box>}
-                      {!editing && <Button onClick={() => setEditing(true)} size="lg" margin="2rem 0" rightIcon={
-                            <BsPlusCircle />}> Create Post
-                      </Button>}
-              </AuthenticatedTemplate>
+              <Box p={10}/>
               <div className={styles.grid}>
                   {!isFetched &&
                       <div className={styles.loader}>
                           <CircularProgress isIndeterminate color='green.300' />
                       </div>}
                       {articles.slice(0).reverse().map((article) => (
-                        <Box key={article.id} className={styles.card} bg={bgcolor}>
-                              <div className={styles.post_header} style={{ backgroundColor: user != null && user.idTokenClaims.oid == article.author_id ? "#ddf4ff" : "#f6f8fa"}}>
+                          <Box key={article.id} className={styles.card} bg={bgcolor} boxShadow={'lg'}>
+                              <div className={styles.post_header} style={{ backgroundColor: (user != null && user.username == article.author_email) ? "#ddf4ff" : "#f6f8fa"}}>
                                   <HStack>
                                       <Tooltip label={article.author_email}> 
                                           <Text fontWeight="semibold"> {article.author_name} </Text>

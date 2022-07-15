@@ -45,6 +45,7 @@ const NavLink = ({ children }) => (
 );
 
 const logout = async (setUser, setAccessToken, router) => {
+    await router.push("/")
     const currentAccount = await msalInstance.getActiveAccount();
     await msalInstance.logoutPopup(
         {
@@ -53,7 +54,6 @@ const logout = async (setUser, setAccessToken, router) => {
         });
     setUser(null);
     setAccessToken(null);
-    router.push("/");
     // TODO: Error check logout and toast to client
 }
 
