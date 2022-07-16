@@ -103,13 +103,13 @@ export const rest_functions = {
         return data != null && data != undefined ? data.value : data;
     },
     delete_article: async (accessToken, articleID) => {
-        const data = await delete_request_base(`https://localhost:5001/Article/id/${articleID}`,
+        const response = await delete_request_base(`https://localhost:5001/Article/id/${articleID}`,
             {
                 'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
                 'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
-            });
-        return data != null && data != undefined ? data.value : data;
+            }, true);
+        return response.ok ? response : new Error();
     },
     // User utilities
     get_or_create_user: async (accessToken) => {

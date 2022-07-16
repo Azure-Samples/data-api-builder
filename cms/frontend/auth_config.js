@@ -1,5 +1,4 @@
 import * as msal from "@azure/msal-browser";
-import { rest_functions as func } from "./utils/rest"
 
 const msalConfig = {
     auth: {

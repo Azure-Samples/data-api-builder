@@ -25,3 +25,8 @@ export const human_time_diff = (date) => {
     // If not even seconds is non-zero, it's 'a moment' ago
     return (ltu == null || ltu == undefined) ? 'a moment': ltu; 
 }
+
+// Return true if input is falsy (null/undefined) or whitespace
+export const isNullOrWhitespace = (input) => {
+    return !input || !input.trim();
+}

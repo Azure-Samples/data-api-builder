@@ -113,7 +113,7 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
                       </div>}
                       {articles.slice(0).reverse().map((article) => (
                           <Box key={article.id} className={styles.card} bg={bgcolor} boxShadow={'lg'}>
-                              <div className={styles.post_header} style={{ backgroundColor: (user != null && user.username == article.author_email) ? "#ddf4ff" : "#f6f8fa"}}>
+                              <div className={styles.post_header} style={{ backgroundColor: (user != null && user.username == article.author_email) ? "#ddf4ff" : "#edf2f7"}}>
                                   <HStack>
                                       <Tooltip label={article.author_email}> 
                                           <Text fontWeight="semibold"> {article.author_name} </Text>
