@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 
 // React Imports
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
@@ -19,10 +19,11 @@ import {
     StackDivider, Box, CircularProgress, useColorModeValue, Text, Tooltip,
     Tag, HStack, Collapse, useDisclosure, useToast, Center, ChakraProvider
 } from '@chakra-ui/react'
-import { BsPlusCircle, BsTrash, BsX, BsXSquareFill } from "react-icons/bs";
+import { BsPlusCircle, BsTrash, BsX, BsXSquareFill, BsPencilSquare } from "react-icons/bs";
 import { CloseIcon } from '@chakra-ui/icons';
 import { FiSend } from "react-icons/fi";
-import { MdPostAdd, MdOutlineBookmarkAdd } from 'react-icons/md';
+import { MdPostAdd, MdOutlineBookmarkAdd, MdEditNote, MdCheck, MdOutlineCheckBoxOutlineBlank, MdOutlineCheckBox } from 'react-icons/md';
+import { TbCircleDot, TbCircleCheck } from "react-icons/tb"
 
 // Msal Imports
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
@@ -30,7 +31,7 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-reac
 // Module Imports
 //import { gql_functions as func } from "../../utils/gql"
 import { rest_functions as func } from "../../utils/rest"
-import { human_time_diff, isNullOrWhitespace } from "../../utils/misc"
+import { human_time_diff, isNullOrWhitespace, success_toast, error_toast, info_toast } from "../../utils/misc"
 import Footer from "../../components/footer"
 
 // Welcome UI Imports
@@ -54,6 +55,8 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
     useEffect(() => { setEditing("create" in router.query) }, [router]);
 
     const toast = useToast()
+    const titleRef = useRef();
+    const bodyRef = useRef();
 
     // Utility function for (re)fetching articles
     const fetch_articles = async () => {
@@ -97,21 +100,23 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
 
     // Validate the post title and body and toast error/warning if needed
     const validate_post = () => {
-        if (isNullOrWhitespace(titleInput) || isNullOrWhitespace(bodyInput)) {
-            toast({
+        if (isNullOrWhitespace(titleInput)) {
+            titleRef.current.focus(); //focuses title field
+            error_toast(toast, {
                 title: "Article Creation Error",
-                description: "Article title/body cannot be empty!",
-                status: 'error',
-                duration: 9000,
-                isClosable: true,
-            })
+                description: "Article title cannot be empty!"
+            });
+        } else if (isNullOrWhitespace(bodyInput)) {
+            bodyRef.current.simpleMde.codemirror.focus(); //focuses body field
+            error_toast(toast, {
+                title: "Article Creation Error",
+                description: "Article content cannot be empty!"
+            });
         } else if (titleInput.length > 100) {
-            toast({
+            titleRef.current.focus();
+            error_toast(toast, {
                 title: "Article Creation Error",
                 description: "Title too long! Please keep your title under 100 characters.",
-                status: 'error',
-                duration: 9000,
-                isClosable: true,
             })
         } else {
             return true;
@@ -123,23 +128,23 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
         try {
             await func.delete_article(accessToken, articleID);
         } catch (Error) {
-            toast({
+            error_toast(toast, {
                 title: "Unexpected Deletion Error",
-                description: "I don't know what happened. Sorry.",
-                status: 'error',
-                duration: 9000,
-                isClosable: true,
+                description: "I don't know what happened. Sorry."
             })
             return;
         }
         await fetch_articles();
-        toast({
+        info_toast(toast, {
             title: "Delete Notification",
-            description: `Deleted article with ID: ${articleID}`,
-            status: 'info',
-            duration: 9000,
-            isClosable: true,
+            description: `Deleted article with ID: ${articleID}`
         })
+    }
+
+    const convert_post = async (articleID, status) => {
+        setIsFetched(false);
+        await func.update_article_status(accessToken, articleID, status);
+        await fetch_articles();
     }
 
     // Utility function for closing the editor interface
@@ -186,9 +191,9 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
                             }})}>
                             <Box bg={bgcolor} padding="20px" width="90%" borderRadius="20px" margin="2em auto 2em auto" boxShadow={'lg'}>
                                 <Field label="Create Article" >
-                                    <InputText placeholder="Title" value={titleInput} onChange={(e) => setTitleInput(e.target.value)} borderRadius=".375rem .375rem 0 0" />
+                                    <InputText ref={titleRef} placeholder="Title" value={titleInput} onChange={(e) => setTitleInput(e.target.value)} borderRadius=".375rem .375rem 0 0" />
                                 </Field>
-                                <MarkdownEditor borderRadius={0} value={bodyInput} onChange={(e) => setBodyInput(e.target.value)}
+                                <MarkdownEditor ref={bodyRef} borderRadius={0} value={bodyInput} onChange={(e) => setBodyInput(e.target.value)}
                                     toolbar={[
                                         { name: 'bold', title: 'Bold' },
                                         { name: 'italic', title: 'Italic' },
@@ -226,42 +231,7 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
                     <div className={styles.grid}>
                         {!isFetched && <div className={styles.loader}><CircularProgress isIndeterminate color='green.300' /></div>}
                         {articles.slice(0).reverse().map((article) => (
-                            <Box key={article.id} className={styles.card} bg={bgcolor} boxShadow={'lg'}>
-                                <div className={styles.post_header} style={{ backgroundColor: "#ddf4ff" }}>
-                                    <HStack>
-                                        <Tooltip label={user.username}>
-                                            <Text fontWeight="semibold"> {user.idTokenClaims.name} </Text>
-                                        </Tooltip>
-                                        <Tooltip label={
-                                            <span>
-                                                {new Date(article.published).toLocaleDateString()}
-                                                <span> &#183; </span>
-                                                {new Date(article.published).toLocaleTimeString()}
-                                            </span>}>
-                                            <Text> {article.status == 2 ? "published" : "saved"} {human_time_diff(article.published)} ago </Text>
-                                        </Tooltip>
-                                    </HStack>
-                                    <HStack>
-                                        <Tooltip label="Edit this post" shouldWrapChildren>
-
-                                        </Tooltip>
-                                        <Tooltip label="Delete this post" shouldWrapChildren>
-                                            <Center>
-                                                <Icon as={BsX} boxSize="1.5em" cursor="pointer" _hover={{ color: "red" }} onClick={() => delete_post(article.id)} />
-                                            </Center>
-                                        </Tooltip>
-
-                                    </HStack>
-                                </div>
-
-                                <div className={mdStyles["markdown-body"]} style={{ padding: "1.5em", borderRadius: "0px 0px 10px 10px" }} >
-                                    <h1 style={{ fontSize: "2.5em" }}> {article.title} </h1>
-                                    <ReactMarkdown className={mdStyles["markdown-body"]} remarkPlugins={[remarkGfm]} >
-                                        {article.body}
-                                    </ReactMarkdown>
-                                </div>
-                            </Box>
-
+                            <Post key={article.id} article={article} user={user} delete_post={delete_post} bgcolor={bgcolor} convert_post={convert_post} />
                         ))}
                     </div>
                 </AuthenticatedTemplate>
@@ -270,6 +240,63 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
                 </UnauthenticatedTemplate>
             </main>
             <Footer />
+        </Box>
+    )
+}
+
+function Post({ article, user, delete_post, bgcolor, convert_post }) {
+    const [icon, setIcon] = useState(article.status == 2 ? "fill" : "outline");
+    useEffect(() => setIcon(article.status == 2 ? "fill" : "outline"), [article]);
+
+    return (
+        <Box key={article.id} className={styles.card} bg={bgcolor} boxShadow={'lg'}>
+            <div className={styles.post_header} style={{ backgroundColor: "#ddf4ff" }}>
+                <HStack>
+                    <Tooltip label={user.username}>
+                        <Text fontWeight="semibold"> {user.idTokenClaims.name} </Text>
+                    </Tooltip>
+                    <Tooltip label={
+                        <span>
+                            {new Date(`${article.published}Z`).toLocaleDateString()}
+                            <span> &#183; </span>
+                            {new Date(`${article.published}Z`).toLocaleTimeString()}
+                        </span>}>
+                        <Text> {article.status == 2 ? "published" : "saved"} {human_time_diff(article.published)} ago </Text>
+                    </Tooltip>
+                </HStack>
+                <HStack>
+                    <Tag mr={"5px"} colorScheme={article.status == 2 ? "green" : "purple"} variant="outline"> {article.status == 2 ? "Published" : "Draft"} </Tag>
+                    {article.status == 2 && 
+                    <Center onMouseEnter={() => setIcon("outline")} onMouseLeave={() => setIcon("fill")}>
+                        <Tooltip label="Convert to draft" shouldWrapChildren>
+                            <Icon as={icon == "fill" ? TbCircleCheck : TbCircleDot} boxSize="1.5em" cursor="pointer" _hover={{ color: "purple" }} onClick={() => convert_post(article.id, 1)} />
+                        </Tooltip>
+                    </Center>}
+                    {article.status == 1 && 
+                    <Center onMouseEnter={() => setIcon("fill")} onMouseLeave={() => setIcon("outline")}>
+                        <Tooltip label="Publish" shouldWrapChildren>
+                            <Icon as={icon == "fill" ? TbCircleCheck : TbCircleDot} boxSize="1.5em" cursor="pointer" _hover={{ color: "green" }} onClick={() => convert_post(article.id, 2)} />
+                        </Tooltip>
+                    </Center>}
+                    <Center pl={"5px"}>
+                        <Tooltip label="Edit this post" shouldWrapChildren>
+                            <Icon as={MdEditNote} boxSize="1.5em" cursor="pointer" _hover={{ color: "blue" }} onClick={() => console.log('edited')} />
+                        </Tooltip>
+                    </Center>
+                    <Center>
+                        <Tooltip label="Delete this post" shouldWrapChildren>
+                            <Icon as={BsX} boxSize="1.5em" cursor="pointer" _hover={{ color: "red" }} onClick={() => delete_post(article.id)} />
+                        </Tooltip>
+                    </Center>
+                </HStack>
+            </div>
+
+            <div className={mdStyles["markdown-body"]} style={{ padding: "1.5em", borderRadius: "0px 0px 10px 10px" }} >
+                <h1 style={{ fontSize: "2.5em" }}> {article.title} </h1>
+                <ReactMarkdown className={mdStyles["markdown-body"]} remarkPlugins={[remarkGfm]} >
+                    {article.body}
+                </ReactMarkdown>
+            </div>
         </Box>
     )
 }

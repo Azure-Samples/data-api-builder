@@ -21,6 +21,7 @@ import { SiMicrosoftazure } from "react-icons/si";
 import { acquireToken } from '../../auth_config'
 import { BrowserAuthError } from '../../node_modules/@azure/msal-browser/dist/index';
 import { rest_functions as func } from "../../utils/rest"
+import { success_toast, error_toast } from "../../utils/misc"
 
 
 export default function Auth({ user, setUser, accessToken, setAccessToken }) {
@@ -28,30 +29,8 @@ export default function Auth({ user, setUser, accessToken, setAccessToken }) {
     const router = useRouter()
     const toast = useToast()
 
-    const error_toast = ({ title, description }) => {
-        toast.closeAll();
-        toast({
-            title: title,
-            description: description,
-            status: 'error',
-            duration: 9000,
-            isClosable: true,
-        })
-    }
-
-    const success_toast = ({ title, description }) => {
-        toast.closeAll();
-        toast({
-            title: title,
-            description: description,
-            status: 'success',
-            duration: 9000,
-            isClosable: true,
-        })
-    }
-
     const flash_success = (token, toastTitle, toastDescription) => {
-        success_toast({ title: toastTitle, description: toastDescription });
+        success_toast(toast, { title: toastTitle, description: toastDescription });
         setUser(token.account);
         setAccessToken(token.accessToken);
         setTimeout(() => router.push("/"), 1000);
@@ -61,11 +40,11 @@ export default function Auth({ user, setUser, accessToken, setAccessToken }) {
         acquireToken().then(async loginResponse => {
             if (loginResponse instanceof BrowserAuthError && loginResponse.errorCode == "user_cancelled") {
                 // user didn't complete auth flow
-                error_toast({ title: "Login Failed", description: "User Canceled Authentication" });
+                error_toast(toast, { title: "Login Failed", description: "User Canceled Authentication" });
 
             } else if (loginResponse instanceof Error) {
                 // couldn't obtain token for unknown reason
-                error_toast({ title: "Login Failed", description: "Unsuccessful Login Attempt" });
+                error_toast(toast, { title: "Login Failed", description: "Unsuccessful Login Attempt" });
 
             } else {
                 // Successfully logged in/obtained a token
@@ -76,12 +55,12 @@ export default function Auth({ user, setUser, accessToken, setAccessToken }) {
                     // set state vars, flash account creation success, navigate back home
                     flash_success(loginResponse, "Account Created", "You've successfully added your account!");
 
-                } else if (Array.isArray(data.value) && data.value.length == 1) {
+                } else if (data != null && data != undefined && Array.isArray(data.value) && data.value.length == 1) {
                     // user already exists in db, just log them in
                     flash_success(loginResponse, "Login Success", `Welcome back, ${data.value[0].fname}`);
 
                 } else {
-                    error_toast({ title: 'Unexpected Error', description: "Something bad happened along the way" });
+                    error_toast(toast, { title: 'Unexpected Error', description: "Something bad happened along the way" });
                 }
             }
         })
@@ -96,31 +75,29 @@ export default function Auth({ user, setUser, accessToken, setAccessToken }) {
             <main className={styles.main}>
                 <Center p={8} mt={'2%'}>
                     <VStack spacing={10}>
-                        <Image src="/msft.png" alt="Microsoft Logo" width={150} height={100} quality={1} />
+                        <Image src="/msft.png" alt="Microsoft Logo" width={150} height={100} />
                     <Box
                         w={'500px'}
                         bg={useColorModeValue('white', 'gray.800')}
                         boxShadow={'2xl'}
                         rounded={'md'}
                         overflow={'hidden'}>
-                        <Text
-                        align={'center' }
-                        fontSize={'lg'}
-                        fontWeight={500}
-                        bg={useColorModeValue('gray.200', 'gray.900')}
-                        p={2}
-                        px={3}
-                        rounded={'sm'}>
-                        Authenticate With A Provider
-                    </Text>
-                    <Stack spacing={2} align={'center'} w={'full'}>
-                            <Button onClick={authenticate} w={'full'} h={'100px'} variant={'outline'} leftIcon={<SiMicrosoftazure w={8} />}>
-                            <Center>
-                                    <Text fontSize={'lg'} >Sign in with Azure AD </Text>
-                            </Center>
-                        </Button>
-
-                        </Stack>
+                            <Text
+                            align={'center' }
+                            fontSize={'lg'}
+                            fontWeight={500}
+                            bg={useColorModeValue('gray.200', 'gray.900')}
+                            p={2}
+                            px={3}>
+                                Authenticate With A Provider
+                            </Text>
+                            <Stack spacing={2} align={'center'} w={'full'}>
+                                <Button onClick={authenticate} w={'full'} h={'100px'} variant={'outline'} borderTopRadius={0} leftIcon={<SiMicrosoftazure w={8} />} >
+                                    <Center>
+                                        <Text fontSize={'lg'}> Sign in with Azure AD </Text>
+                                    </Center>
+                                </Button>
+                            </Stack>
                         </Box>
                     </VStack>
                 </Center>

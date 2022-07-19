@@ -3,7 +3,8 @@
 // ex: if it's been 15 months, will return '1 year'
 // ex: if it's been 150 minutes, will return '2 hours'
 export const human_time_diff = (date) => {
-    let milliDiff = new Date() - new Date(date);
+    // Date is stored as UTC in MS SQL, must append 'Z' for date constructor to interpret
+    let milliDiff = new Date() - new Date(`${date}Z`);
     const times = [
         ['year', 31536000000],
         ['month', 2628000000],
@@ -11,7 +12,6 @@ export const human_time_diff = (date) => {
         ['day', 86400000],
         ['hour', 3600000],
         ['minute', 60000],
-        ['second', 1000]
     ];
 
     let results = []
@@ -29,4 +29,29 @@ export const human_time_diff = (date) => {
 // Return true if input is falsy (null/undefined) or whitespace
 export const isNullOrWhitespace = (input) => {
     return !input || !input.trim();
+}
+
+// Chakra UI toast helpers
+export const error_toast = (toast, options) => {
+    toast_helper(toast, { ...options, status: 'error' });
+}
+
+export const success_toast = (toast, options) => {
+    toast_helper(toast, {...options, status: 'success'});
+}
+
+export const info_toast = (toast, options) => {
+    toast_helper(toast, { ...options, status: 'info' });
+}
+
+export const warning_toast = (toast, options) => {
+    toast_helper(toast, { ...options, status: 'warning' });
+}
+
+const toast_helper = (toast, options) => {
+    toast({
+        ...options,
+        duration: 8000,
+        isClosable: true
+    });
 }

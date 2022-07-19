@@ -44,7 +44,7 @@ CREATE TABLE articles(
     id int IDENTITY(1, 1) PRIMARY KEY,
     title varchar(100) NOT NULL,
 	body varchar(max) NOT NULL,
-	published datetime DEFAULT getdate(), 
+	published datetime DEFAULT GETUTCDATE(), 
 	status int NOT NULL FOREIGN KEY REFERENCES article_statuses(id)
 	ON UPDATE CASCADE, -- ON DELETE will reject/cannot delete a status from the database if an article is assigned to it
 	author_id varchar(50) NOT NULL FOREIGN KEY REFERENCES users(guid)
@@ -68,7 +68,9 @@ ON a.author_id = u.guid
 JOIN dbo.article_statuses AS s
 ON a.status = s.id');
 
+/*
 -- Trigger to auto-update date any time article is changed (i.e. moved to published)
+-- Note: Hawaii does not support triggers on update due to OUTPUT without INTO clause
 EXEC('CREATE TRIGGER article_date_update ON articles
 AFTER UPDATE
 AS
@@ -78,7 +80,7 @@ UPDATE articles set published = GETDATE()
 WHERE id in 
 (SELECT id FROM inserted)
 END');
-
+*/
 
 -- DML
 INSERT INTO article_statuses (name) VALUES ('draft'), ('published');

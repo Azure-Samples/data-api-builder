@@ -123,19 +123,24 @@
               "policy": {
                 "database": "@claims.oid eq @item.author_id"
               },
-              "fields": {}
+              "fields": {
+                "include": [ "*" ]
+              }
             },
             {
               "action": "update",
-              "policy": {},
+              "policy": {
+                "database": "@claims.oid eq @item.author_id"
+              },
               "fields": {
-                "include": [ "*" ],
-                "exclude": [ "id" ]
+                "include": [ "*" ]
               }
             },
             {
               "action": "delete",
-              "policy": {},
+              "policy": {
+                "database": "@claims.oid eq @item.author_id"
+              },
               "fields": {
                 "include": [ "*" ]
               }

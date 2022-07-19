@@ -43,7 +43,6 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
             if (data != null && data != undefined) {
                 setArticles(data);
             } else {
-                console.log('null/undefined data')
                 setArticles([]);
                 // let the loader know to stop on edge case of no data
                 setIsFetched(true);
@@ -120,8 +119,8 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
                                       </Tooltip>
                                       <Text> published {human_time_diff(article.published)} ago </Text>
                                   </HStack>
-                                  <Tooltip label={new Date(article.published).toLocaleTimeString()}>
-                                      <Text> {new Date(article.published).toLocaleDateString()} </Text>
+                                  <Tooltip label={new Date(`${article.published}Z`).toLocaleTimeString()}>
+                                      <Text> {new Date(`${article.published}Z`).toLocaleDateString()} </Text>
                                   </Tooltip>
                             </div>
                             
