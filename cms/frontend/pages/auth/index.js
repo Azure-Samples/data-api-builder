@@ -42,8 +42,12 @@ export default function Auth({ user, setUser, accessToken, setAccessToken }) {
                 // user didn't complete auth flow
                 error_toast(toast, { title: "Login Failed", description: "User Canceled Authentication" });
 
+            } else if (loginResponse instanceof BrowserAuthError && loginResponse.errorCode == "interaction_in_progress") {
+                // another auth flow is already in progress
+                error_toast(toast, { title: "Error", description: "Authentication Already In Progress" });
             } else if (loginResponse instanceof Error) {
                 // couldn't obtain token for unknown reason
+                console.log(loginResponse);
                 error_toast(toast, { title: "Login Failed", description: "Unsuccessful Login Attempt" });
 
             } else {

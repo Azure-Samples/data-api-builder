@@ -5,6 +5,10 @@ The sample is divided into
 - `backend` - which houses the database initialization scripts, hawaii startup scripts, and hawaii configuration file
 - `frontend` - which houses the Next.js app 
 
+<br/>
+
+> ### AuthN/AuthZ
+> In this first version of the CMS sample, anyone (any/all users who visit the site) should be able to view the articles published in your local db copy. All other actions, such as drafting, publishing, updating, deleting posts are limited to those who authenticate through Azure AD. We are using the Microsoft AAD tenant, so all those present in that tenant can receive a valid token and be treated as authenticated, without any extra role configuration. You can see the Azure app registration [here](https://ms.portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/e98794ab-cdaa-4ed3-ad08-0552c47254e2/isMSAApp~/false).
 
 <br/>
 

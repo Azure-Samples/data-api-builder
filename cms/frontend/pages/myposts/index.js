@@ -236,7 +236,7 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
                     </div>
                 </AuthenticatedTemplate>
                 <UnauthenticatedTemplate>
-                    <h1> Sorry, you can't access this </h1>
+                    <h1> Sorry, you can&apos;t access this </h1>
                 </UnauthenticatedTemplate>
             </main>
             <Footer />
