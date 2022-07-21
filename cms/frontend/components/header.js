@@ -9,14 +9,7 @@ import { ReactNode } from 'react';
 import {
     Box,
     Flex,
-    Avatar,
     Button,
-    Menu,
-    MenuButton,
-    MenuList,
-    MenuItem,
-    MenuDivider,
-    useDisclosure,
     useColorModeValue,
     Stack,
     useColorMode,
@@ -29,20 +22,6 @@ import { AiFillHome } from 'react-icons/ai';
 // Module Imports
 import { msalInstance } from "../auth_config"
 
-
-const NavLink = ({ children }) => (
-    <Link
-        px={2}
-        py={1}
-        rounded={'md'}
-        _hover={{
-            textDecoration: 'none',
-            bg: useColorModeValue('gray.200', 'gray.700'),
-        }}
-        href={'#'}>
-        {children}
-    </Link>
-);
 
 const logout = async (setUser, setAccessToken, router) => {
     await router.push("/")

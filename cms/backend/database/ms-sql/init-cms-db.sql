@@ -70,7 +70,7 @@ ON a.status = s.id');
 
 /*
 -- Trigger to auto-update date any time article is changed (i.e. moved to published)
--- Note: Hawaii does not support triggers on update due to OUTPUT without INTO clause
+-- Note: Hawaii does not support triggers on update due to OUTPUT without INTO clause (see https://github.com/Azure/hawaii-engine/issues/452)
 EXEC('CREATE TRIGGER article_date_update ON articles
 AFTER UPDATE
 AS
