@@ -2,7 +2,7 @@
   "$schema": "../schemas/hawaii.draft-01.schema.json",
   "data-source": {
     "database-type": "mssql",
-    "connection-string": "Server=tcp:127.0.0.1,1433;Database=cms-db;User ID=admin;Password=<REPLACEME>"
+    "connection-string": "Server=tcp:127.0.0.1,1433;Database=cms-db;User ID=admin;Password=Remem$ber1960"
   },
   "mssql": {
     "set-session-context": false
@@ -27,8 +27,7 @@
         "provider": "AzureAD",
         "jwt": {
           "audience": "e98794ab-cdaa-4ed3-ad08-0552c47254e2",
-          "issuer": "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/v2.0",
-          "issuer-key": ""
+          "issuer": "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/v2.0"
         }
       }
     }
@@ -129,15 +128,6 @@
             },
             {
               "action": "update",
-              "policy": {
-                "database": "@claims.oid eq @item.author_id"
-              },
-              "fields": {
-                "include": [ "*" ]
-              }
-            },
-            {
-              "action": "delete",
               "policy": {
                 "database": "@claims.oid eq @item.author_id"
               },
