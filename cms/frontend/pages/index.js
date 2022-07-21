@@ -14,11 +14,9 @@ import mdStyles from '../styles/github-markdown.module.css'
 
 // Chakra UI Imports
 import {
-    Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider,
     Box, CircularProgress, useColorModeValue, Text, Tooltip, Tag, HStack,
     useToast
 } from '@chakra-ui/react'
-import { BsPlusCircle, BsTrash } from "react-icons/bs";
 
 // Msal Imports
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
@@ -33,9 +31,6 @@ import Footer from "../components/footer"
 export default function Home({ user, setUser, accessToken, cacheChecked }) {
     const [articles, setArticles] = useState([]);
     const [isFetched, setIsFetched] = useState(false);
-    const [editing, setEditing] = useState(false);
-    const [titleInput, setTitleInput] = useState("");
-    const [bodyInput, setBodyInput] = useState("");
 
     // Utility function for (re)fetching articles
     const fetch_articles = async () => {
@@ -67,23 +62,8 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
         }
     }, [articles])
 
-    // Create an article and trigger data refetch, which triggers page rerender
-    const post = async () => {
-        closeEditor();
-        setIsFetched(false); //triggers loading animation
-        await func.create_article(accessToken, titleInput, bodyInput);
-        await fetch_articles();
-    }
-
-    // Utility function for closing the editor interface
-    const closeEditor = () => {
-        setEditing(false);
-        setTitleInput("");
-        setBodyInput("");
-    }
     const basecolor = useColorModeValue('whitesmoke', 'gray.800');
     const bgcolor = useColorModeValue('white', 'gray.800');
-    const codebgcolor = useColorModeValue('#fafafa', 'black');
 
   return (
       <Box bg={basecolor} className={styles.container}>
