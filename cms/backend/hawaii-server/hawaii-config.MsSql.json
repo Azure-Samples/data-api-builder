@@ -134,6 +134,15 @@
               "fields": {
                 "include": [ "*" ]
               }
+            },
+            {
+              "action": "delete",
+              "policy": {
+                "database": "@claims.oid eq @item.author_id"
+              },
+              "fields": {
+                "include": [ "*" ]
+              }
             }
           ]
         }
