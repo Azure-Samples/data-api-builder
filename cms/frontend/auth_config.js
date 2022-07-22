@@ -1,18 +1,16 @@
 import * as msal from "@azure/msal-browser";
-import { rest_functions as func } from "./rest-utilities.ts"
 
 const msalConfig = {
     auth: {
-        clientId: '024a0cba-83d6-4c22-95bf-b64075b4db6d',
-        authority: 'https://login.microsoftonline.com/291bf275-ea78-4cde-84ea-21309a43a567',
+        clientId: 'e98794ab-cdaa-4ed3-ad08-0552c47254e2',
+        authority: 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47',
         redirectUri: 'http://localhost:3000/auth'
     }
 };
 
 export const msalInstance = new msal.PublicClientApplication(msalConfig);
 
-export const scopes = ['api://bbff8fdb-c073-4466-9463-170744cbd2e2/REST.EndpointAccess',
-    'api://bbff8fdb-c073-4466-9463-170744cbd2e2/GraphQL.ReadWrite']
+export const scopes = [`${msalConfig.auth.clientId}/.default`]
 
 export async function acquireToken() {
     return msalInstance.acquireTokenSilent({ scopes: scopes }).then(tokenResponse => {
@@ -27,7 +25,6 @@ export async function acquireToken() {
         // fallback to interaction when silent call fails
         return msalInstance.acquireTokenPopup({ scopes: scopes }).then(tokenResponse => {
             console.log(tokenResponse);
-            func.get_or_create_user(tokenResponse.accessToken);
             msalInstance.setActiveAccount(tokenResponse.account);
             return tokenResponse;
         }).catch(error => {

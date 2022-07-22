@@ -10,44 +10,62 @@ import React, { useState, useEffect } from 'react';
 import styles from '../../styles/Home.module.css'
 
 // Chakra UI Imports
-import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box, CircularProgress, Center, Stack, Text, useColorModeValue } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/react'
+import {
+    Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider,
+    Box, CircularProgress, Center, Stack, Text, useColorModeValue, useToast
+} from '@chakra-ui/react'
 import { BsPlusCircle, BsTrash } from "react-icons/bs";
 import { SiMicrosoftazure } from "react-icons/si";
 
 // Module Imports
 import { acquireToken } from '../../auth_config'
 import { BrowserAuthError } from '../../node_modules/@azure/msal-browser/dist/index';
+import { rest_functions as func } from "../../utils/rest"
+import { success_toast, error_toast } from "../../utils/misc"
+
 
 export default function Auth({ user, setUser, accessToken, setAccessToken }) {
 
     const router = useRouter()
     const toast = useToast()
+
+    const flash_success = (token, toastTitle, toastDescription) => {
+        success_toast(toast, { title: toastTitle, description: toastDescription });
+        setUser(token.account);
+        setAccessToken(token.accessToken);
+        setTimeout(() => router.push("/"), 1000);
+    }
+
     const authenticate = async () => {
-        acquireToken(setUser, router, setAccessToken).then(loginResponse => {
+        acquireToken().then(async loginResponse => {
             if (loginResponse instanceof BrowserAuthError && loginResponse.errorCode == "user_cancelled") {
-                toast.closeAll()
-                toast({
-                    title: 'Login failed',
-                    description: "Unsuccessful login attempt",
-                    status: 'error',
-                    duration: 9000,
-                    isClosable: true,
-                })
+                // user didn't complete auth flow
+                error_toast(toast, { title: "Login Failed", description: "User Canceled Authentication" });
+
+            } else if (loginResponse instanceof BrowserAuthError && loginResponse.errorCode == "interaction_in_progress") {
+                // another auth flow is already in progress
+                error_toast(toast, { title: "Error", description: "Authentication Already In Progress" });
+            } else if (loginResponse instanceof Error) {
+                // couldn't obtain token for unknown reason
+                console.log(loginResponse);
+                error_toast(toast, { title: "Login Failed", description: "Unsuccessful Login Attempt" });
+
             } else {
-                // If successfull login, set state vars, flash success, navigate back home
-                setUser(loginResponse.account);
-                setAccessToken(loginResponse.accessToken)
-                toast.closeAll()
-                toast({
-                    title: 'Login success',
-                    description: "You've successfully logged in",
-                    status: 'success',
-                    duration: 9000,
-                    isClosable: true,
-                });
-                // Wait a second to navigate away for success to flash
-                setTimeout(() => router.push("/"), 1000);
+                // Successfully logged in/obtained a token
+                // Now, check if user exists - if not, create account
+                const data = await func.get_or_create_user(loginResponse.accessToken);
+                // successfull post/insert into users table
+                if (data instanceof Response && data.status == 201) {
+                    // set state vars, flash account creation success, navigate back home
+                    flash_success(loginResponse, "Account Created", "You've successfully added your account!");
+
+                } else if (data != null && data != undefined && Array.isArray(data.value) && data.value.length == 1) {
+                    // user already exists in db, just log them in
+                    flash_success(loginResponse, "Login Success", `Welcome back, ${data.value[0].fname}`);
+
+                } else {
+                    error_toast(toast, { title: 'Unexpected Error', description: "Something bad happened along the way" });
+                }
             }
         })
         
@@ -61,31 +79,29 @@ export default function Auth({ user, setUser, accessToken, setAccessToken }) {
             <main className={styles.main}>
                 <Center p={8} mt={'2%'}>
                     <VStack spacing={10}>
-                        <Image src="/msft.png" alt="Microsoft Logo" width={150} height={100} quality={1} />
+                        <Image src="/msft.png" alt="Microsoft Logo" width={150} height={100} />
                     <Box
                         w={'500px'}
                         bg={useColorModeValue('white', 'gray.800')}
                         boxShadow={'2xl'}
                         rounded={'md'}
                         overflow={'hidden'}>
-                        <Text
-                        align={'center' }
-                        fontSize={'lg'}
-                        fontWeight={500}
-                        bg={useColorModeValue('gray.200', 'gray.900')}
-                        p={2}
-                        px={3}
-                        rounded={'sm'}>
-                        Authenticate With A Provider
-                    </Text>
-                    <Stack spacing={2} align={'center'} w={'full'}>
-                            <Button onClick={authenticate} w={'full'} h={'100px'} variant={'outline'} leftIcon={<SiMicrosoftazure w={8} />}>
-                            <Center>
-                                    <Text fontSize={'lg'} >Sign in with Azure AD </Text>
-                            </Center>
-                        </Button>
-
-                        </Stack>
+                            <Text
+                            align={'center' }
+                            fontSize={'lg'}
+                            fontWeight={500}
+                            bg={useColorModeValue('gray.200', 'gray.900')}
+                            p={2}
+                            px={3}>
+                                Authenticate With A Provider
+                            </Text>
+                            <Stack spacing={2} align={'center'} w={'full'}>
+                                <Button onClick={authenticate} w={'full'} h={'100px'} variant={'outline'} borderTopRadius={0} leftIcon={<SiMicrosoftazure w={8} />} >
+                                    <Center>
+                                        <Text fontSize={'lg'}> Sign in with Azure AD </Text>
+                                    </Center>
+                                </Button>
+                            </Stack>
                         </Box>
                     </VStack>
                 </Center>

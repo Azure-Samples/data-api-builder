@@ -13,34 +13,32 @@ import styles from '../styles/Home.module.css'
 import mdStyles from '../styles/github-markdown.module.css'
 
 // Chakra UI Imports
-import { Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider, Box, CircularProgress, useColorModeValue, Text } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/react'
-import { BsPlusCircle, BsTrash } from "react-icons/bs";
+import {
+    Box, CircularProgress, useColorModeValue, Text, Tooltip, Tag, HStack,
+    useToast
+} from '@chakra-ui/react'
 
 // Msal Imports
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 
 // Module Imports
-//import { gql_functions as func } from "../gql-utilities"
-import { rest_functions as func } from "../rest-utilities.ts"
+//import { gql_functions as func } from "../utils/gql"
+import { rest_functions as func } from "../utils/rest"
+import { human_time_diff } from "../utils/misc"
 import Footer from "../components/footer"
-
 
 
 export default function Home({ user, setUser, accessToken, cacheChecked }) {
     const [articles, setArticles] = useState([]);
     const [isFetched, setIsFetched] = useState(false);
-    const [editing, setEditing] = useState(false);
-    const [titleInput, setTitleInput] = useState("");
-    const [bodyInput, setBodyInput] = useState("");
 
     // Utility function for (re)fetching articles
     const fetch_articles = async () => {
-        func.get_all_articles(accessToken).then(data => {
+        func.get_all_articles(accessToken, true).then(data => {
             if (data != null && data != undefined) {
                 setArticles(data);
             } else {
-                console.log('null/undefined data')
+                setArticles([]);
                 // let the loader know to stop on edge case of no data
                 setIsFetched(true);
             }
@@ -64,23 +62,8 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
         }
     }, [articles])
 
-    // Create an article and trigger data refetch, which triggers page rerender
-    const post = async () => {
-        closeEditor();
-        setIsFetched(false); //triggers loading animation
-        await func.create_article(accessToken, titleInput, bodyInput);
-        await fetch_articles();
-    }
-
-    // Utility function for closing the editor interface
-    const closeEditor = () => {
-        setEditing(false);
-        setTitleInput("");
-        setBodyInput("");
-    }
     const basecolor = useColorModeValue('whitesmoke', 'gray.800');
     const bgcolor = useColorModeValue('white', 'gray.800');
-    const codebgcolor = useColorModeValue('#fafafa', 'black');
 
   return (
       <Box bg={basecolor} className={styles.container}>
@@ -92,48 +75,44 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
           </Head>
 
           <main className={styles.main}>
-              <Box bg={bgcolor} className={styles.header}>
+              <Box bg={bgcolor} className={styles.header} boxShadow="md">
                   <h1 className={styles.title}>
                       Welcome to Hawaii-CMS!
                   </h1>
 
                   <p className={styles.description}>
-                      Made with <a href="https://nextjs.org">Next.js</a>, apollo gql, and Azure data gateway.
+                      Made with <a href="https://nextjs.org">Next.js</a>, MS SQL, and Azure Data API Builder
                   </p>
               </Box>
-              <AuthenticatedTemplate>
-                  {editing &&
-                      <Box bg={bgcolor} padding="20px" width="50%" borderRadius="20px" margin="2rem 0">
-                          <VStack width="100%" spacing={0} alignItems="none" borderWidth="5px" borderRadius="10px" divider={<StackDivider borderColor='gray.200' />}>
-                              <Heading padding="5px" borderRadius="5px" textAlign="center" color="white" width="100%" backgroundColor="gray" fontSize='xl'> Create Article </Heading>
-                              <Textarea value={titleInput} onChange={(e) => setTitleInput(e.target.value)} id="title" size="lg" overflow="auto" resize="none" rows={1} placeholder='Title' />
-                              <Textarea value={bodyInput} onChange={(e) => setBodyInput(e.target.value)} id="body" size="lg" rows={5} placeholder='Markdown Body' />
-                              <ButtonGroup isAttached colorScheme="twitter">
-                                  <Button variant="outline" width="50%" onClick={closeEditor} leftIcon={<BsTrash />}>Discard</Button>
-                                  <Button colorScheme='twitter' width="50%" onClick={post}> Post </Button>
-                              </ButtonGroup>
-
-                          </VStack>
-                      </Box>}
-                      {!editing && <Button onClick={() => setEditing(true)} size="lg" margin="2rem 0" rightIcon={
-                            <BsPlusCircle />}> Create Post
-                      </Button>}
-              </AuthenticatedTemplate>
+              <Box p={10}/>
               <div className={styles.grid}>
                   {!isFetched &&
                       <div className={styles.loader}>
                           <CircularProgress isIndeterminate color='green.300' />
                       </div>}
                       {articles.slice(0).reverse().map((article) => (
-                          <Box key={article.id} className={styles.card} bg={bgcolor}>
-                              <div className={mdStyles["markdown-body"]}>
-                                  <h1 style={{ fontSize: "2.5em" }}> {article.title} </h1>
-                                  <ReactMarkdown className={mdStyles["markdown-body"]} remarkPlugins={[remarkGfm]}>
-                                      {article.body}
-                                  </ReactMarkdown>
-                              </div>
-                          </Box>
-                      ))}
+                          <Box key={article.id} className={styles.card} bg={bgcolor} boxShadow={'lg'}>
+                              <div className={styles.post_header} style={{ backgroundColor: (user != null && user.username == article.author_email) ? "#ddf4ff" : "#edf2f7"}}>
+                                  <HStack>
+                                      <Tooltip label={article.author_email}> 
+                                          <Text fontWeight="semibold"> {article.author_name} </Text>
+                                      </Tooltip>
+                                      <Text> published {human_time_diff(article.published)} ago </Text>
+                                  </HStack>
+                                  <Tooltip label={new Date(`${article.published}Z`).toLocaleTimeString()}>
+                                      <Text> {new Date(`${article.published}Z`).toLocaleDateString()} </Text>
+                                  </Tooltip>
+                            </div>
+                            
+                            <div className={mdStyles["markdown-body"]} style={{ padding: "1.5em", borderRadius: "0px 0px 10px 10px" }} >
+                                <h1 style={{ fontSize: "2.5em"}}> {article.title} </h1>
+                                <ReactMarkdown className={mdStyles["markdown-body"]} remarkPlugins={[remarkGfm]} >
+                                    {article.body}
+                                </ReactMarkdown>
+                            </div>
+                        </Box>
+
+                    ))}
               </div>
 
           </main>

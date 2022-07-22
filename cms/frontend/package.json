@@ -19,6 +19,8 @@
     "@emotion/styled": "^11.8.1",
     "@welcome-ui/core": "^4.2.0",
     "@welcome-ui/field": "^4.2.0",
+    "@welcome-ui/icons": "^4.3.3",
+    "@welcome-ui/input-text": "^4.2.0",
     "@welcome-ui/markdown-editor": "^4.2.0",
     "@xstyled/styled-components": "^3.6.0",
     "chakra-ui-markdown-renderer": "^4.1.0",
@@ -29,7 +31,7 @@
     "next": "12.1.6",
     "react": "^18.2.0",
     "react-dom": "18.1.0",
-    "react-icons": "^4.3.1",
+    "react-icons": "^4.4.0",
     "react-markdown": "^8.0.3",
     "remark-gfm": "^3.0.1",
     "styled-components": "^5.3.5"

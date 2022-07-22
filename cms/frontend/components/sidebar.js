@@ -6,62 +6,27 @@ import { useRouter } from 'next/router'
 import React from 'react';
 
 // Chakra UI Imports
-import {
-    IconButton,
-    Box,
-    CloseButton,
-    Flex,
-    Icon,
-    useColorModeValue,
-    Drawer,
-    DrawerContent,
-    Text,
-    useDisclosure,
-    BoxProps,
-    FlexProps,
-} from '@chakra-ui/react';
-import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+import { Box, Flex, Icon, Tabs, TabList, Tab, useColorModeValue } from '@chakra-ui/react'
 
 // Icon Imports
-import {
-    FiHome,
-    FiTrendingUp,
-    FiCompass,
-    FiStar,
-    FiSettings,
-    FiMenu,
-} from 'react-icons/fi';
-import { MdOutlineAccountCircle } from 'react-icons/md';
-import { IconType } from 'react-icons';
+import { FiHome } from 'react-icons/fi';
+import { MdOutlineAccountCircle, MdViewHeadline, MdPostAdd } from 'react-icons/md';
 
 const LinkItems = [
     { name: 'Explore', icon: FiHome, href: '/' },
-    { name: 'My Posts', icon: FiTrendingUp, href: '/myposts' },
+    { name: 'Create Post', icon: MdPostAdd, href: '/myposts?create=true' },
+    { name: 'My Posts', icon: MdViewHeadline, href: '/myposts' },
     { name: 'My Account', icon: MdOutlineAccountCircle, href: '/myaccount' },
-    { name: 'Settings', icon: FiSettings, href: '/' },
 ];
 
 export default function SimpleSidebar({ children }) {
-    const { isOpen, onOpen, onClose } = useDisclosure();
     return (
         <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
-            <SidebarContent
+            <SidebarContent boxShadow="xl"
                 bg={useColorModeValue('gray.100', 'gray.900')}
                 display={{ base: 'none', md: 'block' }}
-                onClose={onClose}
             />
-            <Drawer
-                autoFocus={false}
-                isOpen={isOpen}
-                placement="left"
-                onClose={onClose}
-                returnFocusOnClose={false}
-                onOverlayClick={onClose}
-                size="full">
-                <DrawerContent>
-                    <SidebarContent onClose={onClose} />
-                </DrawerContent>
-            </Drawer>
+
             <Box ml={{ base: 0, md: 60 }}>
                 {children}
             </Box>
@@ -70,9 +35,9 @@ export default function SimpleSidebar({ children }) {
 };
 
 
-const SidebarContent = ({ onClose, ...rest }) => {
+const SidebarContent = ({ ...rest }) => {
     const router = useRouter();
-    const [tabIndex, setTabIndex] = React.useState(LinkItems.map(x=>x.href).indexOf(router.pathname)); //fancily ensure tabindex maintained on page refresh
+    const [tabIndex, setTabIndex] = React.useState(LinkItems.map(x => x.href).indexOf(router.pathname)); //fancily ensure tabindex maintained on page refresh
     return (
         <Box
             bg={useColorModeValue('white', 'gray.900')}
@@ -83,18 +48,14 @@ const SidebarContent = ({ onClose, ...rest }) => {
             h="full"
             {...rest}>
 
-            <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-                <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
-                </Text>
-                <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
-            </Flex>
+            <Flex h="2" alignItems="center" mx="8" justifyContent="space-between" />
 
             <Tabs orientation="vertical" index={tabIndex} onChange={setTabIndex}>
                 <TabList>
                     {LinkItems.map((link) => (
                         <NavItem key={link.name} href={link.href} icon={link.icon}>
                             {link.name}
-                        </NavItem>    
+                        </NavItem>
                     ))}
                 </TabList>
             </Tabs>
@@ -105,12 +66,9 @@ const SidebarContent = ({ onClose, ...rest }) => {
 const NavItem = ({ icon, href, children }) => {
 
     return (
-        
+
         <Link href={href}>
-            <Tab _focus={{
-                outline: 'none',
-                }}
-                >
+            <Tab _focus={{ outline: 'none' }} lineHeight="28px" >
                 <Flex
                     align="center"
                     p="4"
@@ -127,11 +85,11 @@ const NavItem = ({ icon, href, children }) => {
                         bg: 'blue.600',
                         color: 'white'
                     }}
-                    >
+                >
                     {icon && (
                         <Icon
                             mr="4"
-                            fontSize="16"
+                            fontSize={children != "Explore" ? 24 : 20}
                             _groupHover={{
                                 color: 'white',
                             }}
@@ -139,8 +97,8 @@ const NavItem = ({ icon, href, children }) => {
                         />
                     )}
                     {children}
-                    </Flex>
-                </Tab>
+                </Flex>
+            </Tab>
         </Link>
     );
 };

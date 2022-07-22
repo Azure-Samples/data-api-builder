@@ -83,7 +83,6 @@
 
 .card {
   margin: 1rem;
-  padding: 1.5rem;
   color: inherit;
   text-decoration: none;
   border: 1px solid #eaeaea;
@@ -113,6 +112,20 @@
   margin: 0;
   font-size: 1.25rem;
   line-height: 1.5;
+}
+
+.post_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 25px;
+    padding-left: 25px;
+    color: black;
+    background-color: #f6f8fa;
+    border-bottom: 1px solid #d0d7de;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    height: 50px;
 }
 
 .logo {

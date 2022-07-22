@@ -9,14 +9,7 @@ import { ReactNode } from 'react';
 import {
     Box,
     Flex,
-    Avatar,
     Button,
-    Menu,
-    MenuButton,
-    MenuList,
-    MenuItem,
-    MenuDivider,
-    useDisclosure,
     useColorModeValue,
     Stack,
     useColorMode,
@@ -30,21 +23,8 @@ import { AiFillHome } from 'react-icons/ai';
 import { msalInstance } from "../auth_config"
 
 
-const NavLink = ({ children }) => (
-    <Link
-        px={2}
-        py={1}
-        rounded={'md'}
-        _hover={{
-            textDecoration: 'none',
-            bg: useColorModeValue('gray.200', 'gray.700'),
-        }}
-        href={'#'}>
-        {children}
-    </Link>
-);
-
-const logout = async (setUser, router) => {
+const logout = async (setUser, setAccessToken, router) => {
+    await router.push("/")
     const currentAccount = await msalInstance.getActiveAccount();
     await msalInstance.logoutPopup(
         {
@@ -52,11 +32,11 @@ const logout = async (setUser, router) => {
             postLogoutRedirectUri: "http://localhost:3000/auth"
         });
     setUser(null);
-    router.push("/");
+    setAccessToken(null);
     // TODO: Error check logout and toast to client
 }
 
-export default function Header({ user, setUser }) {
+export default function Header({ user, setUser, setAccessToken }) {
     const { colorMode, toggleColorMode } = useColorMode();
     const router = useRouter();
 
@@ -64,10 +44,10 @@ export default function Header({ user, setUser }) {
         <>
             <Box bg={useColorModeValue('gray.100', 'gray.900')} px={4} >
                 <Flex h={16} alignItems={'center'} justifyContent={'space-between'} >
-                    <Link href="/">
+                    {router.pathname == "/auth" && <Link href="/">
                         <Button><Icon as={AiFillHome} boxSize={5} /></Button>
-                    </Link>
-                    <Box mr={'auto'}>{user != null ? `Welcome, ${user.username}` : ""}</Box>
+                    </Link>}
+                    <Box mr={'auto'} ml={'1em'}>{user != null ? `Welcome, ${user.username}` : ""}</Box>
 
                     <Flex alignItems={'center'}>
                         <Stack direction={'row'} spacing={7}>
@@ -82,7 +62,7 @@ export default function Header({ user, setUser }) {
                                     </Link>
                                 }
                                 {user != null &&  
-                                    <Button onClick={()=>logout(setUser, router)}> Sign Out </Button>
+                                    <Button onClick={()=>logout(setUser, setAccessToken, router)}> Sign Out </Button>
                                 }
                                     </Center>
                         </Stack>

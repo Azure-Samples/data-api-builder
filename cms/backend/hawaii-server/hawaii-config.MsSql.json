@@ -2,7 +2,7 @@
   "$schema": "../schemas/hawaii.draft-01.schema.json",
   "data-source": {
     "database-type": "mssql",
-    "connection-string": "Server=tcp:127.0.0.1,1433;Database=cms-db;User ID=admin;Password=<REPLACEME>"
+    "connection-string": "Server=tcp:127.0.0.1,1433;Database=cms-db;User ID=admin;Password=Remem$ber1960"
   },
   "mssql": {
     "set-session-context": false
@@ -26,9 +26,8 @@
       "authentication": {
         "provider": "AzureAD",
         "jwt": {
-          "audience": "bbff8fdb-c073-4466-9463-170744cbd2e2",
-          "issuer": "https://login.microsoftonline.com/291bf275-ea78-4cde-84ea-21309a43a567/v2.0",
-          "issuer-key": ""
+          "audience": "e98794ab-cdaa-4ed3-ad08-0552c47254e2",
+          "issuer": "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/v2.0"
         }
       }
     }
@@ -123,19 +122,24 @@
               "policy": {
                 "database": "@claims.oid eq @item.author_id"
               },
-              "fields": {}
+              "fields": {
+                "include": [ "*" ]
+              }
             },
             {
               "action": "update",
-              "policy": {},
+              "policy": {
+                "database": "@claims.oid eq @item.author_id"
+              },
               "fields": {
-                "include": [ "*" ],
-                "exclude": [ "id" ]
+                "include": [ "*" ]
               }
             },
             {
               "action": "delete",
-              "policy": {},
+              "policy": {
+                "database": "@claims.oid eq @item.author_id"
+              },
               "fields": {
                 "include": [ "*" ]
               }
@@ -180,6 +184,47 @@
           "target.fields": [ "status" ]
         }
       }
+    },
+    "ArticleDetailed": {
+      "source": {
+        "type": "view",
+        "object": "articles_detailed",
+        "key-fields": [ "id" ]
+      },
+      "rest": true,
+      "graphql": true,
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "read",
+              "policy": {
+                "database": "@item.status eq 'published'"
+              },
+              "fields": {
+                "include": [ "*" ],
+                "exclude": []
+              }
+            }
+          ]
+        },
+        {
+          "role": "authenticated",
+          "actions": [
+            {
+              "action": "read",
+              "policy": {
+                "database": "@claims.oid eq @item.author_id"
+              },
+              "fields": {
+                "include": [ "*" ],
+                "exclude": []
+              }
+            }
+          ]
+        }
+      ]
     }
   }
 

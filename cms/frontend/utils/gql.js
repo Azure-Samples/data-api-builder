@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import client from "./apollo-client";
+import client from "../apollo-client";
 
 export const gql_functions = {
 

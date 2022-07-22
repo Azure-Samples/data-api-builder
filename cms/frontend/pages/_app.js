@@ -54,7 +54,7 @@ function MyApp({ Component, pageProps }) {
         <MsalProvider instance={msalInstance}>
             <ChakraProvider>
                 <ApolloProvider client={client}>
-                    <Header user={user} setUser={setUser} />
+                    <Header user={user} setUser={setUser} setAccessToken={setAccessToken} />
                     <AuthenticatedTemplate>
                         {/* Don't render sidebar on sign in page */}
                         {router.pathname != "/auth" && <SimpleSidebar>
