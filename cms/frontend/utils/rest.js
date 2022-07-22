@@ -4,7 +4,7 @@ import { msalInstance, scopes } from "../auth_config"
 const rest_request_base = async (url, options, returnResponse = false) => {
     // Acquire token on a per request basis
     const activeAccount = await msalInstance.getActiveAccount();
-            try {
+    try {
         // Try to acquire a token and add it to the Authorization header
         const tokenResponse = await msalInstance.acquireTokenSilent({ account: activeAccount, scopes: scopes });
         options.headers = { ...options.headers, "Authorization": `Bearer ${tokenResponse.accessToken}` };
@@ -14,17 +14,21 @@ const rest_request_base = async (url, options, returnResponse = false) => {
     
     try {
         const response = await fetch(url, options);
-        try {
-                return returnResponse ? response : await response.json();
-        } catch (err) { // response.json() errors on empty result
-            if (response.ok) { // can be a valid response, like a NoContentResponse for delete
-                return response;
-            } else { // otherwise, unauthorized response or a server error
+        if (returnResponse) {
+            return response;
+        } else {
+            if (response.ok) {
+                // if valid response, try to return json response data
+                try {
+                    return await response.json()
+                } catch (err) { // response.json() errors on empty result
+                    return response;
+                }
+            } else {
+            // otherwise, unauthorized response or a server error
                 console.log(`error response. status: ${response.status}`);
-            throw response;
-        }
-            console.log(err);
-
+                throw response;
+            }
         }
     } catch (fetchError) {
         if (fetchError instanceof TypeError) {
@@ -73,7 +77,7 @@ export const rest_functions = {
         const url = "https://localhost:5001/Article" + (verbose ? "Detailed" : "") + "?$orderby=published";
         const data = await get_request_base(url,
         {
-                'X-MS-API-ROLE': 'anonymous'
+        'X-MS-API-ROLE': 'anonymous'
         });
         return data != null && data != undefined ? data.value : data;
     },
@@ -82,7 +86,6 @@ export const rest_functions = {
         const data = await get_request_base(url,
             {
             'X-MS-API-ROLE': 'authenticated',
-            'Authorization': `Bearer ${accessToken}`
         });
         return data != null && data != undefined ? data.value : data;
     },
@@ -100,11 +103,6 @@ export const rest_functions = {
     update_article: async (articleID, newTitle, newBody, newStatus) => {
         const data = await patch_request_base(`https://localhost:5001/Article/id/${articleID}`, {},
             {
-                'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
-                'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
-            {
                 "title": newTitle,
                 "body": newBody,
                 "status": newStatus,
@@ -113,14 +111,9 @@ export const rest_functions = {
     },
     update_article_status: async (articleID, newStatus) => {
         const response = await patch_request_base(`https://localhost:5001/Article/id/${articleID}`, {},
-        {
-            'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
-            'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-        },
-        {
-            "status": newStatus,
-            "published": new Date().toISOString().slice(0, -1)
+            {
+                "status": newStatus,
+                "published": new Date().toISOString().slice(0, -1)
             });
         return response;
     },
