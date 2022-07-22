@@ -42,7 +42,7 @@ import { Icons } from '@welcome-ui/icons'
 import { InputText } from '@welcome-ui/input-text'
 
 
-export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
+export default function MyPosts({ user, setUser, cacheChecked }) {
     const [articles, setArticles] = useState([]);
     const [isFetched, setIsFetched] = useState(false);
     const [titleInput, setTitleInput] = useState("");
@@ -60,18 +60,14 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
 
     // Utility function for (re)fetching articles
     const fetch_articles = async () => {
-        func.get_my_articles(accessToken).then(data => {
-            if (data != null && data != undefined) {
-                setArticles(data);
-            } else {
-                console.log('null/undefined data')
-                // let the loader know to stop on edge case of no data
-                setIsFetched(true);
-            }
-        }).catch(err => {
-            console.log(err);
+        try {
+            const data = await func.get_my_articles();
+            setArticles(data);
+        } catch (err) {
+            surface_appropriate_error(err);
+        } finally {
             setIsFetched(true);
-        });
+        }
     }
 
     // Initial data fetching (wait for cache to be checked)
@@ -81,20 +77,35 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
         }
     }, [cacheChecked])
 
-    // Remove loading animation on data being fetched
-    useEffect(() => {
-        if (cacheChecked) {
-            setIsFetched(true);
+
+    // Helper to show as useful an error as possible
+    const surface_appropriate_error = (err) => {
+        toast.closeAll();
+        if (err.status != null && err.status != undefined) { // more than likely an error surfaced by hawaii
+            error_toast(toast, { title: `${err.status}`, description: err.status == 403 ? `Unauthorized` : `${err.statusText}` })
+        } else {
+            error_toast(toast, { title: "Network Error", description: "Check network connection and/or developer console" })
         }
-    }, [articles])
+    }
 
     // Create an article and trigger data refetch, which triggers page rerender
     const submit_post = async (statusID) => {
         if (validate_post()) {
-            closeEditor();
             setIsFetched(false); //triggers loading animation
-            await func.create_article(accessToken, titleInput, bodyInput, statusID);
-            await fetch_articles();
+            try {
+                await func.create_article(titleInput, bodyInput, statusID);
+                await fetch_articles();
+                if (statusID == 1) {
+                    info_toast(toast, { title: "Saved Draft", description: "Saved your article as a draft" })
+                } else if (statusID == 2) {
+                    success_toast(toast, { title: "Published", description: "Published your article!" })
+                }
+                closeEditor();
+            } catch (err) {
+                surface_appropriate_error(err);
+            } finally {
+                setIsFetched(true);
+            }
         }
     }
 
@@ -126,25 +137,36 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
     const delete_post = async (articleID) => {
         setIsFetched(false); //triggers loading animation
         try {
-            await func.delete_article(accessToken, articleID);
-        } catch (Error) {
-            error_toast(toast, {
-                title: "Unexpected Deletion Error",
-                description: "I don't know what happened. Sorry."
-            })
-            return;
+            await func.delete_article(articleID); 
+            await fetch_articles();
+            toast.closeAll();
+            info_toast(toast, {
+                title: "Delete Notification",
+                description: `Deleted article with ID: ${articleID}`
+            });
+        } catch (err) {
+            surface_appropriate_error(err);
+        } finally {
+            setIsFetched(true);
         }
-        await fetch_articles();
-        info_toast(toast, {
-            title: "Delete Notification",
-            description: `Deleted article with ID: ${articleID}`
-        })
     }
 
     const convert_post = async (articleID, status) => {
         setIsFetched(false);
-        await func.update_article_status(accessToken, articleID, status);
-        await fetch_articles();
+        try {
+            await func.update_article_status(articleID, status);
+            toast.closeAll();
+            if (status == 1) {
+                info_toast(toast, { title: "Reverted", description: "Converted your article to draft status" })
+            } else if (status == 2) {
+                success_toast(toast, { title: "Published", description: "Published your draft article!" })
+            }
+            await fetch_articles();
+        } catch (err) {
+            surface_appropriate_error(err);
+        } finally {
+            setIsFetched(true);
+        }
     }
 
     // Utility function for closing the editor interface
@@ -155,7 +177,6 @@ export default function MyPosts({ user, setUser, accessToken, cacheChecked }) {
     }
     const basecolor = useColorModeValue('whitesmoke', 'gray.800');
     const bgcolor = useColorModeValue('white', 'gray.800');
-    const codebgcolor = useColorModeValue('#fafafa', 'black');
 
     return (
         <Box bg={basecolor} className={styles.container}>

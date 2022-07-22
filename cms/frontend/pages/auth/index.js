@@ -24,7 +24,7 @@ import { rest_functions as func } from "../../utils/rest"
 import { success_toast, error_toast } from "../../utils/misc"
 
 
-export default function Auth({ user, setUser, accessToken, setAccessToken }) {
+export default function Auth({ user, setUser }) {
 
     const router = useRouter()
     const toast = useToast()
@@ -32,7 +32,6 @@ export default function Auth({ user, setUser, accessToken, setAccessToken }) {
     const flash_success = (token, toastTitle, toastDescription) => {
         success_toast(toast, { title: toastTitle, description: toastDescription });
         setUser(token.account);
-        setAccessToken(token.accessToken);
         setTimeout(() => router.push("/"), 1000);
     }
 
@@ -53,18 +52,22 @@ export default function Auth({ user, setUser, accessToken, setAccessToken }) {
             } else {
                 // Successfully logged in/obtained a token
                 // Now, check if user exists - if not, create account
-                const data = await func.get_or_create_user(loginResponse.accessToken);
-                // successfull post/insert into users table
-                if (data instanceof Response && data.status == 201) {
-                    // set state vars, flash account creation success, navigate back home
-                    flash_success(loginResponse, "Account Created", "You've successfully added your account!");
+                try {
+                    const response = await func.get_or_create_user();
+                    // successfull post/insert into users table
+                    if (response instanceof Response && response.status == 201) {
+                        // set state vars, flash account creation success, navigate back home
+                        flash_success(loginResponse, "Account Created", "You've successfully added your account!");
 
-                } else if (data != null && data != undefined && Array.isArray(data.value) && data.value.length == 1) {
-                    // user already exists in db, just log them in
-                    flash_success(loginResponse, "Login Success", `Welcome back, ${data.value[0].fname}`);
+                    } else if (response != null && response != undefined && Array.isArray(response.value) && response.value.length == 1) {
+                        // user already exists in db, just log them in
+                        flash_success(loginResponse, "Login Success", `Welcome back, ${response.value[0].fname}`);
 
-                } else {
-                    error_toast(toast, { title: 'Unexpected Error', description: "Something bad happened along the way" });
+                    } else {
+                        error_toast(toast, { title: `${response.status}`, description: response.status == 403 ? `Unauthorized` : `${response.statusText}` });
+                    }
+                } catch (err) {
+                    error_toast(toast, { title: 'Network Error', description: "Check network connection and/or developer console" });
                 }
             }
         })

@@ -1,32 +1,38 @@
-import { msalInstance } from "../auth_config"
+import { msalInstance, scopes } from "../auth_config"
 
 // Helpers
 const rest_request_base = async (url, options, returnResponse = false) => {
-    return fetch(url, options).then(async response => {
-        if (response.ok) {
-            // by default return json data, optionally return full response object
-            try {
-                return returnResponse ? response : await response.json();
-            } catch (err) {
-                console.log('No response content to parse - remember to pass returnResponse option.');
-                return response;
-            }
-        } else {
-            // fetch resolves but with an unsuccessful status code
-            throw response;
-        }
-    }).catch(error => {
+    // Acquire token on a per request basis
+    const activeAccount = await msalInstance.getActiveAccount();
+    try {
+        // Try to acquire a token and add it to the Authorization header
+        const tokenResponse = await msalInstance.acquireTokenSilent({ account: activeAccount, scopes: scopes });
+        options.headers = { ...options.headers, "Authorization": `Bearer ${tokenResponse.accessToken}` };
+    } catch (error) {
+        // No active account/user is not logged in
+    }
+    
+    try {
+        const response = await fetch(url, options);
         try {
-            error.json().then(body => {
-                // if error is well-formed, display here
-                console.log(body);
-            }).catch(err => {
-                console.log(`status: ${error.status}, empty error message`)
-            })
-        } catch (err) {
+            return returnResponse ? response : await response.json();
+        } catch (err) { // response.json() errors on empty result
+            if (response.ok) { // can be a valid response, like a NoContentResponse for delete
+                return response;
+            } else { // otherwise, unauthorized response or a server error
+                console.log(`error response. status: ${response.status}`);
+                throw response;
+            }
+            console.log(err);
+
+        }
+    } catch (fetchError) {
+        if (fetchError instanceof TypeError) {
+            // can't fetch the resource, usually due to a network error
             console.log(`Could not fetch url: ${url}. Check if Hawaii is running.`);
         }
-    });
+        throw fetchError;
+    }
 }
 
 const get_request_base = async (url, headers, returnResponse = false) => {
@@ -39,7 +45,7 @@ const get_request_base = async (url, headers, returnResponse = false) => {
 const post_request_base = async (url, headers, body, returnResponse = false) => {
     return await rest_request_base(url, {
         method: 'POST',
-        headers: headers,
+        headers: { ...headers, 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
     }, returnResponse);
 }
@@ -47,7 +53,7 @@ const post_request_base = async (url, headers, body, returnResponse = false) => 
 const patch_request_base = async (url, headers, body, returnResponse = false) => {
     return await rest_request_base(url, {
         method: 'PATCH',
-        headers: headers,
+        headers: { ...headers, 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
     }, returnResponse);
 }
@@ -62,32 +68,26 @@ const delete_request_base = async (url, headers, returnResponse = false) => {
 
 export const rest_functions = {
     // Article utilities
-    get_all_articles: async (accessToken, verbose) => {
+    get_all_articles: async (verbose) => {
         // Conditionally query the article table or a view of article, author, and status tables combined
         const url = "https://localhost:5001/Article" + (verbose ? "Detailed" : "") + "?$orderby=published";
         const data = await get_request_base(url,
-        {
-            'X-MS-API-ROLE': 'anonymous',
-            'Authorization': `Bearer ${accessToken}`
-        });
-        return data != null && data != undefined ? data.value : data;
-    },
-    get_my_articles: async (accessToken, verbose) => {
-        const url = "https://localhost:5001/Article" + (verbose ? "Detailed" : "") + "?$orderby=published";
-        const data = await get_request_base(url, {
-            'X-MS-API-ROLE': 'authenticated',
-            'Authorization': `Bearer ${accessToken}`
-        });
-        return data != null && data != undefined ? data.value : data;
-    },
-    create_article: async (accessToken, titleInput, bodyInput, status = 1) => {
-        const activeAccount = await msalInstance.getActiveAccount();
-        const data = await post_request_base("https://localhost:5001/Article",
             {
-                'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
-                'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
+                'X-MS-API-ROLE': 'anonymous'
+            });
+        return data != null && data != undefined ? data.value : data;
+    },
+    get_my_articles: async (verbose) => {
+        const url = "https://localhost:5001/Article" + (verbose ? "Detailed" : "") + "?$orderby=published";
+        const data = await get_request_base(url,
+            {
+                'X-MS-API-ROLE': 'authenticated',
+            });
+        return data != null && data != undefined ? data.value : data;
+    },
+    create_article: async (titleInput, bodyInput, status = 1) => {
+        const activeAccount = await msalInstance.getActiveAccount();
+        const data = await post_request_base("https://localhost:5001/Article", {},
             {
                 "title": titleInput,
                 "body": bodyInput,
@@ -96,13 +96,8 @@ export const rest_functions = {
             });
         return data != null && data != undefined ? data.value : data;
     },
-    update_article: async (accessToken, articleID, newTitle, newBody, newStatus) => {
-        const data = await patch_request_base(`https://localhost:5001/Article/id/${articleID}`,
-            {
-                'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
-                'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
+    update_article: async (articleID, newTitle, newBody, newStatus) => {
+        const data = await patch_request_base(`https://localhost:5001/Article/id/${articleID}`, {},
             {
                 "title": newTitle,
                 "body": newBody,
@@ -110,46 +105,26 @@ export const rest_functions = {
             });
         return data != null && data != undefined ? data.value : data;
     },
-    update_article_status: async (accessToken, articleID, newStatus) => {
-        const response = await patch_request_base(`https://localhost:5001/Article/id/${articleID}`,
-        {
-            'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
-            'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-        },
-        {
-            "status": newStatus,
-            "published": new Date().toISOString().slice(0, -1)
-        }, true);
-        return response.ok ? response : new Error();
-    },
-    delete_article: async (accessToken, articleID) => {
-        const response = await delete_request_base(`https://localhost:5001/Article/id/${articleID}`,
+    update_article_status: async (articleID, newStatus) => {
+        const response = await patch_request_base(`https://localhost:5001/Article/id/${articleID}`, {},
             {
-                'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
-                'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            }, true);
-        return response.ok ? response : new Error();
+                "status": newStatus,
+                "published": new Date().toISOString().slice(0, -1)
+            });
+        return response;
+    },
+    delete_article: async (articleID) => {
+        return await delete_request_base(`https://localhost:5001/Article/id/${articleID}`);
     },
     // User utilities
-    get_or_create_user: async (accessToken) => {
+    get_or_create_user: async () => {
         // check if user already exists (is guid in users table)
-        const user_data = await get_request_base("https://localhost:5001/User", {
-            'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
-            'Authorization': accessToken == null ? null : `Bearer ${accessToken}`
-        });
-        console.log(user_data);
+        const user_data = await get_request_base("https://localhost:5001/User");
 
         // if empty/user not yet in db, return post request response object
         if (user_data == undefined || user_data == null || (Array.isArray(user_data.value) && user_data.value.length == 0)) {
             const activeAccount = await msalInstance.getActiveAccount();
-            return await post_request_base("https://localhost:5001/User",
-                {
-                    'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
-                    'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
-                },
+            return await post_request_base("https://localhost:5001/User", {},
                 {
                     "guid": activeAccount.idTokenClaims.oid,
                     "fname": activeAccount.name.split(' ')[0],
@@ -161,13 +136,8 @@ export const rest_functions = {
             return user_data;
         }
     },
-    update_user: async (accessToken, userID, fname, lname, email) => {
-        const data = await patch_request_base(`https://localhost:5001/User/guid/${userID}`,
-            {
-                'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
-                'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
+    update_user: async (userID, fname, lname, email) => {
+        const data = await patch_request_base(`https://localhost:5001/User/guid/${userID}`, {},
             {
                 "fname": fname,
                 "lname": lname,
@@ -175,14 +145,8 @@ export const rest_functions = {
             });
         return data != null && data != undefined ? data.value : data;
     },
-    delete_user: async (accessToken, userID) => {
-        const data = await delete_request_base(`https://localhost:5001/User/guid/${userID}`,
-            {
-                'X-MS-API-ROLE': accessToken == null ? 'anonymous' : 'authenticated',
-                'Authorization': accessToken == null ? null : `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            });
-        return data != null && data != undefined ? data.value : data;
+    delete_user: async (userID) => {
+        return await delete_request_base(`https://localhost:5001/User/guid/${userID}`);
     }
 
 }
