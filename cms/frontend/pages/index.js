@@ -24,28 +24,29 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-reac
 // Module Imports
 //import { gql_functions as func } from "../utils/gql"
 import { rest_functions as func } from "../utils/rest"
-import { human_time_diff } from "../utils/misc"
+import { human_time_diff, error_toast } from "../utils/misc"
 import Footer from "../components/footer"
 
 
-export default function Home({ user, setUser, accessToken, cacheChecked }) {
+export default function Home({ user, setUser, cacheChecked }) {
     const [articles, setArticles] = useState([]);
     const [isFetched, setIsFetched] = useState(false);
+    const toast = useToast()
 
     // Utility function for (re)fetching articles
     const fetch_articles = async () => {
-        func.get_all_articles(accessToken, true).then(data => {
-            if (data != null && data != undefined) {
-                setArticles(data);
+        try {
+            const data = await func.get_all_articles(true);
+            setArticles(data);
+        } catch (err) {
+            if (err.status != null && err.status != undefined) { // more than likely an error surfaced by hawaii
+                error_toast(toast, { title: `${err.status}`, description: err.status == 403 ? `Unauthorized` : `${err.statusText}` })
             } else {
-                setArticles([]);
-                // let the loader know to stop on edge case of no data
-                setIsFetched(true);
+                error_toast(toast, { title: "Fetch Error", description: "Check network connection and/or developer console" })
             }
-        }).catch(err => {
-            console.log(err);
+        } finally {
             setIsFetched(true);
-        });
+        }
     }
 
     // Initial data fetching (wait for cache to be checked)
@@ -55,12 +56,6 @@ export default function Home({ user, setUser, accessToken, cacheChecked }) {
         }
     }, [cacheChecked])
 
-    // Remove loading animation on data being fetched
-    useEffect(() => {
-        if (cacheChecked) {
-            setIsFetched(true);
-        }
-    }, [articles])
 
     const basecolor = useColorModeValue('whitesmoke', 'gray.800');
     const bgcolor = useColorModeValue('white', 'gray.800');
