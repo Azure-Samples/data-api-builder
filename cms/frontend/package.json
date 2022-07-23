@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "start msedge --new-window http://localhost:3000 & next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "start msedge --new-window http://localhost:3000 & next start",
     "lint": "next lint",
     "https": "local-ssl-proxy --key localhost-key.pem --cert localhost.pem --source 3001 --target 3000"
   },

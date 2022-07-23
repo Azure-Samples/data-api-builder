@@ -1,8 +1,8 @@
 {
-  "$schema": "../../project-hawaii/playground/hawaii.draft-01.schema.json",
+  "$schema": "../schemas/hawaii.draft-01.schema.json",
   "data-source": {
     "database-type": "mssql",
-    "connection-string": "Server=tcp:127.0.0.1,1433;Database=cms-db;User ID=admin;Password=<REPLACEME>"
+    "connection-string": "Server=tcp:cms-sample.database.windows.net,1433;Initial Catalog=cms-db;Persist Security Info=False;User ID={your_aad_username};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Authentication=\"Active Directory Interactive\";"
   },
   "mssql": {
     "set-session-context": false
@@ -10,7 +10,7 @@
   "runtime": {
     "rest": {
       "enabled": true,
-      "path": "/api"
+      "path": "/"
     },
     "graphql": {
       "enabled": true,
@@ -26,9 +26,8 @@
       "authentication": {
         "provider": "AzureAD",
         "jwt": {
-          "audience": "bbff8fdb-c073-4466-9463-170744cbd2e2",
-          "issuer": "https://login.microsoftonline.com/291bf275-ea78-4cde-84ea-21309a43a567/v2.0",
-          "issuer-key": ""
+          "audience": "e98794ab-cdaa-4ed3-ad08-0552c47254e2",
+          "issuer": "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/v2.0"
         }
       }
     }
@@ -48,25 +47,39 @@
           "actions": [
             {
               "action": "create",
-              "policy": {},
-              "fields": {}
+              "policy": {
+                "database": ""
+              },
+              "fields": {
+                "include": [ "*" ]
+              }
             },
             {
               "action": "read",
-              "policy": {},
+              "policy": {
+                "database": "@claims.oid eq @item.guid"
+              },
               "fields": {
                 "include": [ "*" ]
               }
             },
             {
               "action": "update",
-              "policy": {},
-              "fields": {}
+              "policy": {
+                "database": "@claims.oid eq @item.guid"
+              },
+              "fields": {
+                "include": [ "*" ]
+              }
             },
             {
               "action": "delete",
-              "policy": {},
-              "fields": {}
+              "policy": {
+                "database": "@claims.oid eq @item.guid"
+              },
+              "fields": {
+                "include": [ "*" ]
+              }
             }
           ]
         }
@@ -75,9 +88,8 @@
         "articles": {
           "cardinality": "many",
           "target.entity": "Article",
-          "linking.object": "user_article_link",
-          "linking.source.fields": [ "user_id" ],
-          "linking.target.fields": [ "article_id" ]
+          "source.fields": [ "guid" ],
+          "target.fields": [ "author_id" ]
         }
       }
     },
@@ -105,30 +117,42 @@
           "role": "authenticated",
           "actions": [
             "create",
-            "read",
+            {
+              "action": "read",
+              "policy": {
+                "database": "@claims.oid eq @item.author_id"
+              },
+              "fields": {
+                "include": [ "*" ]
+              }
+            },
             {
               "action": "update",
-              "policy": {},
+              "policy": {
+                "database": "@claims.oid eq @item.author_id"
+              },
               "fields": {
-                "include": [ "*" ],
-                "exclude": [ "id" ]
+                "include": [ "*" ]
               }
             },
             {
               "action": "delete",
-              "policy": {},
-              "fields": {}
+              "policy": {
+                "database": "@claims.oid eq @item.author_id"
+              },
+              "fields": {
+                "include": [ "*" ]
+              }
             }
           ]
         }
       ],
       "relationships": {
         "users": {
-          "cardinality": "many",
+          "cardinality": "one",
           "target.entity": "User",
-          "linking.object": "user_article_link",
-          "linking.source.fields": [ "article_id" ],
-          "linking.target.fields": [ "user_id" ]
+          "source.fields": [ "author_id" ],
+          "target.fields": [ "guid" ]
         },
         "article_statuses": {
           "cardinality": "one",
@@ -160,6 +184,47 @@
           "target.fields": [ "status" ]
         }
       }
+    },
+    "ArticleDetailed": {
+      "source": {
+        "type": "view",
+        "object": "articles_detailed",
+        "key-fields": [ "id" ]
+      },
+      "rest": true,
+      "graphql": true,
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "read",
+              "policy": {
+                "database": "@item.status eq 'published'"
+              },
+              "fields": {
+                "include": [ "*" ],
+                "exclude": []
+              }
+            }
+          ]
+        },
+        {
+          "role": "authenticated",
+          "actions": [
+            {
+              "action": "read",
+              "policy": {
+                "database": "@claims.oid eq @item.author_id"
+              },
+              "fields": {
+                "include": [ "*" ],
+                "exclude": []
+              }
+            }
+          ]
+        }
+      ]
     }
   }
 

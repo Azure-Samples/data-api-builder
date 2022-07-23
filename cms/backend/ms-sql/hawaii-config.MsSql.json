@@ -2,7 +2,7 @@
   "$schema": "../schemas/hawaii.draft-01.schema.json",
   "data-source": {
     "database-type": "mssql",
-    "connection-string": "Server=tcp:127.0.0.1,1433;Database=cms-db;Integrated Security=true"
+    "connection-string": "Server=;Database=cms-db;Integrated Security=True;"
   },
   "mssql": {
     "set-session-context": false

@@ -440,7 +440,7 @@ function Post({ article, user, delete_post, bgcolor, convert_post, update_post }
                                 </AlertDialogHeader>
 
                                 <AlertDialogBody>
-                                  Are you sure? You can't undo this action afterwards.
+                                  Are you sure? You can&apos;t undo this action afterwards.
                                 </AlertDialogBody>
 
                                 <AlertDialogFooter>

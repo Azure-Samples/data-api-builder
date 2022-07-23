@@ -53,9 +53,9 @@ CREATE TABLE articles(
 );
 
 -- Stored procedure for testing
-EXEC('CREATE PROCEDURE GetUser @user_id varchar(50)
+EXEC('CREATE PROCEDURE GetUser @user_ids varchar(50) = ''1''
 AS
-SELECT * FROM users WHERE users.guid = @user_id');
+SELECT * FROM users WHERE users.guid = @user_ids');
 
 -- Ease-of-use view for article/author/status join
 EXEC('CREATE VIEW articles_detailed AS 
