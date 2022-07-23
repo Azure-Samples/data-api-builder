@@ -1,7 +1,5 @@
 // Next Imports
 import Head from 'next/head'
-import Image from 'next/image'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 
 // React Imports
@@ -15,14 +13,13 @@ import mdStyles from '../../styles/github-markdown.module.css'
 
 // Chakra UI Imports
 import {
-    Button, ButtonGroup, Icon, IconButton, Heading, Textarea, VStack,
-    StackDivider, Box, CircularProgress, useColorModeValue, Text, Tooltip,
-    Tag, HStack, Collapse, useDisclosure, useToast, Center, ChakraProvider
+    Button, ButtonGroup, Icon, IconButton, Box, CircularProgress, useColorModeValue, Text, Tooltip, Tag, HStack,
+    Collapse, useDisclosure, useToast, Center, Modal, ModalOverlay, ModalContent,
+    AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay
 } from '@chakra-ui/react'
-import { BsPlusCircle, BsTrash, BsX, BsXSquareFill, BsPencilSquare } from "react-icons/bs";
-import { CloseIcon } from '@chakra-ui/icons';
+import { BsTrash, BsX } from "react-icons/bs";
 import { FiSend } from "react-icons/fi";
-import { MdPostAdd, MdOutlineBookmarkAdd, MdEditNote, MdCheck, MdOutlineCheckBoxOutlineBlank, MdOutlineCheckBox } from 'react-icons/md';
+import { MdPostAdd, MdOutlineBookmarkAdd, MdEditNote } from 'react-icons/md';
 import { TbCircleDot, TbCircleCheck } from "react-icons/tb"
 
 // Msal Imports
@@ -42,13 +39,45 @@ import { Icons } from '@welcome-ui/icons'
 import { InputText } from '@welcome-ui/input-text'
 
 
+// Constants shared between components
+const wuiToolbar = [
+    { name: 'bold', title: 'Bold' },
+    { name: 'italic', title: 'Italic' },
+    { name: 'strikethrough', title: 'Strikethrough' },
+    { name: 'link', title: 'Link' },
+    { name: 'divider' },
+    { name: 'heading_1', title: 'Heading 1' },
+    { name: 'heading_2', title: 'Heading 2' },
+    { name: 'divider' },
+    { name: 'unordered_list', title: 'Unordered list' },
+    { name: 'ordered_list', title: 'Ordered list' },
+    { name: 'divider' },
+    { name: 'code', title: 'Code' },
+    { name: 'quote', title: 'Quote' },
+];
+
+const wuiTheme = {
+    fonts: {
+        texts: "system-ui, sans-serif",
+        heading: "Georgia, serif",
+    },
+    labels: {
+        "fontSize": "1.4rem",
+    },
+    icons: {
+        md: "1.25rem",
+    }
+};
+
 export default function MyPosts({ user, setUser, cacheChecked }) {
     const [articles, setArticles] = useState([]);
     const [isFetched, setIsFetched] = useState(false);
-    const [titleInput, setTitleInput] = useState("");
-    const [bodyInput, setBodyInput] = useState("");
 
-    // Have editor open depending on query params
+    // Create article editor state vars
+    const [createTitleInput, setCreateTitleInput] = useState("");
+    const [createBodyInput, setCreateBodyInput] = useState("");
+
+    // Have create article editor open depending on query params
     // On state initialization router is undefined, so have to listen for changes
     const router = useRouter();
     const [editing, setEditing] = useState("create" in router.query);
@@ -57,6 +86,11 @@ export default function MyPosts({ user, setUser, cacheChecked }) {
     const toast = useToast()
     const titleRef = useRef();
     const bodyRef = useRef();
+
+    // Hiding welcome ui's awful scrollbars in the markdown editors
+    useEffect(() => {
+        Array.from(document.getElementsByClassName("CodeMirror-vscrollbar")).forEach(element => element.hidden = true);
+    }, [createBodyInput])
 
     // Utility function for (re)fetching articles
     const fetch_articles = async () => {
@@ -90,10 +124,10 @@ export default function MyPosts({ user, setUser, cacheChecked }) {
 
     // Create an article and trigger data refetch, which triggers page rerender
     const submit_post = async (statusID) => {
-        if (validate_post()) {
+        if (validate_post(titleRef, bodyRef, createTitleInput, createBodyInput)) {
             setIsFetched(false); //triggers loading animation
             try {
-                await func.create_article(titleInput, bodyInput, statusID);
+                await func.create_article(createTitleInput, createBodyInput, statusID);
                 await fetch_articles();
                 if (statusID == 1) {
                     info_toast(toast, { title: "Saved Draft", description: "Saved your article as a draft" })
@@ -110,7 +144,7 @@ export default function MyPosts({ user, setUser, cacheChecked }) {
     }
 
     // Validate the post title and body and toast error/warning if needed
-    const validate_post = () => {
+    const validate_post = (titleRef, bodyRef, titleInput, bodyInput) => {
         if (isNullOrWhitespace(titleInput)) {
             titleRef.current.focus(); //focuses title field
             error_toast(toast, {
@@ -169,11 +203,40 @@ export default function MyPosts({ user, setUser, cacheChecked }) {
         }
     }
 
+    const update_post = async (article, titleRef, bodyRef, newTitle, newBody, newStatus, onClose, setIconLoading) => {
+        setIconLoading(true);
+        if (article.title != newTitle || article.body != newBody || article.status != newStatus) {
+            if (validate_post(titleRef, bodyRef, newTitle, newBody)) {
+                setIsFetched(false);
+                try {
+                    await func.update_article(article.id, newTitle, newBody, newStatus);
+                    if (newStatus == 1) {
+                        info_toast(toast, { title: "Updated", description: "Saved your updated article as a draft" })
+                    } else if (newStatus == 2) {
+                        success_toast(toast, { title: "Updated", description: "Published your updated article!" })
+                    }
+                    onClose();
+                    setIconLoading(false);
+                    await fetch_articles();
+                } catch (err) {
+                    surface_appropriate_error(err);
+                } finally {
+                    setIsFetched(true);
+                }
+            } else {
+                setIconLoading(false);
+            } 
+        } else {
+            error_toast(toast, { title: "No changes detected", description: "Update title, body, or status" });
+            setIconLoading(false);
+        }
+    }
+
     // Utility function for closing the editor interface
     const closeEditor = async () => {
         setEditing(false);
-        setTitleInput("");
-        setBodyInput("");
+        setCreateTitleInput("");
+        setCreateBodyInput("");
     }
     const basecolor = useColorModeValue('whitesmoke', 'gray.800');
     const bgcolor = useColorModeValue('white', 'gray.800');
@@ -199,37 +262,14 @@ export default function MyPosts({ user, setUser, cacheChecked }) {
                 </Box>
                 <AuthenticatedTemplate>
                     <Collapse bg={bgcolor} style={{ width: "100%" }} in={editing} animateOpacity>
-                        <WuiProvider theme={createTheme({
-                            fonts: {
-                                texts: "system-ui, sans-serif",
-                                heading: "Georgia, serif",
-                            },
-                            "labels": {
-                                "fontSize": "1.4rem",
-                            },
-                            "icons": {
-                                "md": "1.25rem",
-                            }})}>
-                            <Box bg={bgcolor} padding="20px" width="90%" borderRadius="20px" margin="2em auto 2em auto" boxShadow={'lg'}>
+                        <WuiProvider theme={createTheme(wuiTheme)}>
+                            <Box bg={bgcolor} padding="2em" width="90%" borderRadius="20px" margin="2em auto 2em auto" boxShadow={'lg'}>
                                 <Field label="Create Article" >
-                                    <InputText ref={titleRef} placeholder="Title" value={titleInput} onChange={(e) => setTitleInput(e.target.value)} borderRadius=".375rem .375rem 0 0" />
+                                    <InputText ref={titleRef} placeholder="Title" value={createTitleInput} onChange={(e) => setCreateTitleInput(e.target.value)}
+                                        borderRadius=".375rem .375rem 0 0" fontSize="1rem" />
                                 </Field>
-                                <MarkdownEditor ref={bodyRef} borderRadius={0} value={bodyInput} onChange={(e) => setBodyInput(e.target.value)}
-                                    toolbar={[
-                                        { name: 'bold', title: 'Bold' },
-                                        { name: 'italic', title: 'Italic' },
-                                        { name: 'strikethrough', title: 'Strikethrough' },
-                                        { name: 'link', title: 'Link' },
-                                        { name: 'divider' },
-                                        { name: 'heading_1', title: 'Heading 1' },
-                                        { name: 'heading_2', title: 'Heading 2' },
-                                        { name: 'divider' },
-                                        { name: 'unordered_list', title: 'Unordered list' },
-                                        { name: 'ordered_list', title: 'Ordered list' },
-                                        { name: 'divider' },
-                                        { name: 'code', title: 'Code' },
-                                        { name: 'quote', title: 'Quote' },
-                                    ]} name="welcome" placeholder="Markdown Body" minHeight="20em"
+                                <MarkdownEditor ref={bodyRef} borderRadius={0} value={createBodyInput} onChange={(e) => setCreateBodyInput(e.target.value)}
+                                    toolbar={wuiToolbar} name="welcome" placeholder="Markdown Body" minHeight="20em" maxHeight="80vh" overflowY="auto" fontSize="1rem"
                                 />
                                 <ButtonGroup isAttached colorScheme="gray" variant="outline" w="full">
                                     <Tooltip label="Discard this post">
@@ -252,7 +292,8 @@ export default function MyPosts({ user, setUser, cacheChecked }) {
                     <div className={styles.grid}>
                         {!isFetched && <div className={styles.loader}><CircularProgress isIndeterminate color='green.300' /></div>}
                         {articles.slice(0).reverse().map((article) => (
-                            <Post key={article.id} article={article} user={user} delete_post={delete_post} bgcolor={bgcolor} convert_post={convert_post} />
+                            <Post key={article.id} article={article} user={user} bgcolor={bgcolor}
+                                delete_post={delete_post} convert_post={convert_post} update_post={update_post} />
                         ))}
                     </div>
                 </AuthenticatedTemplate>
@@ -265,9 +306,48 @@ export default function MyPosts({ user, setUser, cacheChecked }) {
     )
 }
 
-function Post({ article, user, delete_post, bgcolor, convert_post }) {
+function Post({ article, user, delete_post, bgcolor, convert_post, update_post }) {
+    // Populate the icon depending on draft/published status
     const [icon, setIcon] = useState(article.status == 2 ? "fill" : "outline");
     useEffect(() => setIcon(article.status == 2 ? "fill" : "outline"), [article]);
+
+    // Update article editor state vars
+    const [title, setTitle] = useState(article.title);
+    const [body, setBody] = useState(article.body);
+
+    // Draft and publish button loading animations on update article
+    const [draftLoading, setDraftLoading] = useState(false);
+    const [publishLoading, setPublishLoading] = useState(false);
+
+    // Hiding welcome ui's awful scrollbars in the markdown editor
+    useEffect(() => {
+        Array.from(document.getElementsByClassName("CodeMirror-vscrollbar")).forEach(element => element.hidden = true);
+    }, [body])
+
+    // Delete dialog's state
+    const {
+        isOpen: isOpenDelete,
+        onOpen: onOpenDelete,
+        onClose: onCloseDelete
+    } = useDisclosure();
+
+    // Update modal's state
+    const {
+        isOpen: isOpenUpdateModal,
+        onOpen: onOpenUpdateModal,
+        onClose: onCloseUpdateModal
+    } = useDisclosure();
+
+    // Discards state changes
+    const closeModal = () => {
+        setTitle(article.title);
+        setBody(article.body);
+        onCloseUpdateModal();
+    }
+
+    const cancelDeleteRef = useRef();
+    const titleRef = useRef();
+    const bodyRef = useRef();
 
     return (
         <Box key={article.id} className={styles.card} bg={bgcolor} boxShadow={'lg'}>
@@ -301,13 +381,79 @@ function Post({ article, user, delete_post, bgcolor, convert_post }) {
                     </Center>}
                     <Center pl={"5px"}>
                         <Tooltip label="Edit this post" shouldWrapChildren>
-                            <Icon as={MdEditNote} boxSize="1.5em" cursor="pointer" _hover={{ color: "blue" }} onClick={() => console.log('edited')} />
+                            <Icon as={MdEditNote} boxSize="1.5em" cursor="pointer" _hover={{ color: "blue" }} onClick={onOpenUpdateModal} />
                         </Tooltip>
+                        <Modal isOpen={isOpenUpdateModal}
+                            onClose={closeModal}
+                            preserveScrollBarGap
+                            returnFocusOnClose={false}
+                            isCentered
+                            size="6xl"
+                        >
+                            <ModalOverlay />
+                            <ModalContent borderRadius="20px">
+                            <WuiProvider theme={createTheme(wuiTheme)}>
+                                <Box bg={bgcolor} w="full" padding="2em" borderRadius="1em">
+                                    <Field label="Update Article" >
+                                        <InputText ref={titleRef} placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)}
+                                            borderRadius=".375rem .375rem 0 0" fontSize=".9rem" />
+                                    </Field>
+                                    <MarkdownEditor ref={bodyRef} borderRadius={0} value={body} onChange={(e) => setBody(e.target.value)}
+                                        toolbar={wuiToolbar} name="welcome" placeholder="Markdown Body" minHeight="20em" fontSize=".9rem" maxHeight="70vh" overflowY="auto" />
+                                    <ButtonGroup isAttached colorScheme="gray" variant="outline" w="full">
+                                        <Tooltip label="Discard update">
+                                            <IconButton flexGrow={1} _hover={{ color: "red.600", bg: "gray.100" }} borderTopLeftRadius={0} isLoading={false}
+                                                onClick={onCloseUpdateModal} icon={<Icon as={BsTrash} boxSize={5} />} />
+                                        </Tooltip>
+                                        <Tooltip label="Save as draft">
+                                            <IconButton flexGrow={1} _hover={{ color: "purple", bg: "gray.100" }}  isLoading={draftLoading}
+                                                onClick={() => update_post(article, titleRef, bodyRef, title, body, 1, onCloseUpdateModal, setDraftLoading)}
+                                                icon={<Icon as={MdOutlineBookmarkAdd} boxSize="1.4rem" />} />
+                                        </Tooltip>
+                                        <Tooltip label="Publish update">
+                                            <IconButton flexGrow={1} _hover={{ color: "blue.600", bg: "gray.100" }} borderTopRightRadius={0}  isLoading={publishLoading}
+                                                onClick={() => update_post(article, titleRef, bodyRef, title, body, 2, onCloseUpdateModal, setPublishLoading)}
+                                                icon={<Icon as={FiSend} boxSize={5} />} />
+                                        </Tooltip>
+                                    </ButtonGroup>
+                                </Box>
+                                </WuiProvider>
+                            </ModalContent>
+                        </Modal>
                     </Center>
                     <Center>
                         <Tooltip label="Delete this post" shouldWrapChildren>
-                            <Icon as={BsX} boxSize="1.5em" cursor="pointer" _hover={{ color: "red" }} onClick={() => delete_post(article.id)} />
+                            <Icon as={BsX} boxSize="1.5em" cursor="pointer" _hover={{ color: "red" }} _active={{ color: "red.600" }} onClick={onOpenDelete} />
                         </Tooltip>
+                        <AlertDialog
+                            isOpen={isOpenDelete}
+                            leastDestructiveRef={cancelDeleteRef}
+                            onClose={onCloseDelete}
+                            preserveScrollBarGap
+                            returnFocusOnClose={false}
+                            isCentered
+                          >
+                            <AlertDialogOverlay>
+                              <AlertDialogContent>
+                                <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+                                  Delete Article
+                                </AlertDialogHeader>
+
+                                <AlertDialogBody>
+                                  Are you sure? You can't undo this action afterwards.
+                                </AlertDialogBody>
+
+                                <AlertDialogFooter>
+                                  <Button ref={cancelDeleteRef} onClick={onCloseDelete}>
+                                    Cancel
+                                  </Button>
+                                  <Button colorScheme='red' onClick={() => { onCloseDelete(); delete_post(article.id); } } ml={3}>
+                                    Delete
+                                  </Button>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialogOverlay>
+                          </AlertDialog>
                     </Center>
                 </HStack>
             </div>

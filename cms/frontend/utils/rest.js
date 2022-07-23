@@ -106,6 +106,7 @@ export const rest_functions = {
                 "title": newTitle,
                 "body": newBody,
                 "status": newStatus,
+                "published": new Date().toISOString().slice(0, -1)
             });
         return data != null && data != undefined ? data.value : data;
     },
