@@ -18,7 +18,7 @@ import { BsPlusCircle, BsTrash } from "react-icons/bs";
 import { SiMicrosoftazure } from "react-icons/si";
 
 // Module Imports
-import { acquireToken } from '../../auth_config'
+import { acquireToken, msalInstance } from '../../auth_config'
 import { BrowserAuthError } from '../../node_modules/@azure/msal-browser/dist/index';
 import { rest_functions as func } from "../../utils/rest"
 import { success_toast, error_toast } from "../../utils/misc"
@@ -29,9 +29,10 @@ export default function Auth({ user, setUser }) {
     const router = useRouter()
     const toast = useToast()
 
-    const flash_success = (token, toastTitle, toastDescription) => {
+    const flash_success = (tokenResponse, toastTitle, toastDescription) => {
         success_toast(toast, { title: toastTitle, description: toastDescription });
-        setUser(token.account);
+        msalInstance.setActiveAccount(tokenResponse.account);
+        setUser(tokenResponse.account);
         setTimeout(() => router.push("/"), 1000);
     }
 

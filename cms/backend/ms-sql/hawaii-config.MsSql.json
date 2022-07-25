@@ -48,7 +48,7 @@
             {
               "action": "create",
               "policy": {
-                "database": ""
+                "request": "@claims.oid eq @body.guid"
               },
               "fields": {
                 "include": [ "*" ]

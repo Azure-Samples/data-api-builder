@@ -79,7 +79,7 @@ export default function Home({ user, setUser, cacheChecked }) {
                       Made with <a href="https://nextjs.org">Next.js</a>, MS SQL, and Azure Data API Builder
                   </p>
               </Box>
-              <Box p={10}/>
+              <Box p={5}/>
               <div className={styles.grid}>
                   {!isFetched &&
                       <div className={styles.loader}>
