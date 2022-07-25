@@ -1,6 +1,6 @@
--- Omitting use statements as they are not supported in Azure portal's query editor
+-- Azure SQL DB does not support context switching using USE statement
+-- So, assumes valid connection to hosted cms-db by this point
 
-DROP TABLE IF EXISTS user_article_link;
 DROP TABLE IF EXISTS articles;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS article_statuses;
@@ -10,11 +10,6 @@ DROP VIEW IF EXISTS articles_detailed;
 DROP TRIGGER IF EXISTS article_date_update;
 
 GO
-
-/* 
-- Current state of hawaii AuthZ does not support the joins or nested policies needed for v1 schema design (or any many-to-many relation with authz enforcement)
-- Simplifying the design, making articles to users/authors a many to one relation (an article can only have one author)
-*/
 
 -- DDL
 CREATE TABLE article_statuses(
