@@ -29,10 +29,9 @@ export default function Auth({ user, setUser }) {
     const router = useRouter()
     const toast = useToast()
 
-    const flash_success = (tokenResponse, toastTitle, toastDescription) => {
+    const flash_success = (token, toastTitle, toastDescription) => {
         success_toast(toast, { title: toastTitle, description: toastDescription });
-        msalInstance.setActiveAccount(tokenResponse.account);
-        setUser(tokenResponse.account);
+        setUser(token.account);
         setTimeout(() => router.push("/"), 1000);
     }
 
@@ -66,9 +65,11 @@ export default function Auth({ user, setUser }) {
 
                     } else {
                         error_toast(toast, { title: `${response.status}`, description: response.status == 403 ? `Unauthorized` : `${response.statusText}` });
+                        await msalInstance.setActiveAccount(null);
                     }
                 } catch (err) {
                     error_toast(toast, { title: 'Network Error', description: "Check network connection and/or developer console" });
+                    await msalInstance.setActiveAccount(null);
                 }
             }
         })

@@ -24,6 +24,7 @@ export async function acquireToken() {
         }
         // fallback to interaction when silent call fails
         return msalInstance.acquireTokenPopup({ scopes: scopes }).then(tokenResponse => {
+            msalInstance.setActiveAccount(tokenResponse.account);
             return tokenResponse;
         }).catch(error => {
             return error;
