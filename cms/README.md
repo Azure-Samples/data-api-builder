@@ -18,10 +18,10 @@ This sample supports 3 backend options at this time:
 - Local MySQL db
 
 Q: _Why not postgres or cosmos?_ 
-A: Hawaii not supporting views for Postgres and cosmos not supporting views.. at all.. prevents them from fitting in to the agnostic frontend code.
+A: Hawaii not supporting views for Postgres and cosmos not supporting views.. at all.. prevents them from fitting with the agnostic api calls the frontend makes.
 
 ## `backend/ms-sql`
-Note: startup scripts that use `sqlcmd` to initialize the database attempt to use windows authentication mode. If for any reason this fails, update `init-db.bat` to the following: `sqlcmd -U {your_user} -P {your_pw} -i init-cms-db.sql`. See more about available options [here](https://docs.microsoft.com/en-us/sql/tools/sqlcmd-utility?view=sql-server-ver16). 
+**Note:** startup scripts that use `sqlcmd` to initialize the database attempt to use windows authentication mode. If for any reason this fails, update `init-db.bat` to the following: `sqlcmd -U {your_user} -P {your_pw} -i init-cms-db.sql`. See more about available options [here](https://docs.microsoft.com/en-us/sql/tools/sqlcmd-utility?view=sql-server-ver16). 
 <br/>
 
 > ### hawaii-config.MsSql.json
@@ -44,18 +44,63 @@ Note: startup scripts that use `sqlcmd` to initialize the database attempt to us
 
 ### `init-db.bat`
 > - Runs the included `init-cms-db.sql` SQL script to initialize a fresh cms database
-> - Run in `cmd` or powershell with `./init-db`
+> - Usually no need to run alone
 
 ### `init-cms-db.sql` 
 
 > - The MsSql schema the CMS uses.
-> - Run using SSMS, using the `sqlcmd` utility, or preferably just use `init-db.bat` script
+> - Run using SSMS, Azure Data Studio, using the `sqlcmd` utility, but preferably just use `init-db.bat` script
 
 
 ## `backend/azure-sql`
+**Note:** Connecting to an Azure SQL DB through Azure AD requires multi-factor authentication (MFA). As such, commands and config attempt to use "Active Directory Interactive" authentication mode, which requires specifying your username. **As such, remember to replace your username in `hawaii-config.AzureSql.json` and `init-db.bat`.** Read more about the authentication modes [here](https://docs.microsoft.com/en-us/sql/tools/sqlcmd-utility?view=sql-server-ver16#:~:text=execute%20sqlcmd%20%2D%3F.-,%2DG,-This%20switch%20is). 
+
+<br/>
+
+> ### hawaii-config.AzureSql.json
+> - Remember to replace the `User ID` in your connection string with your AAD username 
+> - Same connection string options apply ([here](https://docs.microsoft.com/en-us/sql/relational-databases/native-client/applications/using-connection-string-keywords-with-sql-server-native-client?view=sql-server-ver16))
+> 
+
+### `run-new.bat`
+> - Same behavior as described above
+
+### `run-server.bat` and `run-server.sh`
+> - Runs the hawaii server with the included `hawaii-config.AzureSql.json` configuration file
+
+### `init-db.bat`
+> - Resets the [Azure SQL DB instance](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/f33eb08a-3fe1-40e6-a9b6-2a9c376c616f/resourceGroups/cms-sample/providers/Microsoft.Sql/servers/cms-sample/databases/cms-db/overview) to a fresh state
+> - Remember to replace your AAD username after the `-U` flag
+> - Ex: `sqlcmd -S tcp:cms-sample.database.windows.net,1433 -d cms-db -G -U t-vikhanna@microsoft.com -i init-cms-db.sql` 
+
+### `init-cms-db.sql` 
+
+> - Identical schema to MS SQL (minus USE/CREATE DATABASE statements)
 
 ## `backend/mysql`
+**Prerequisites**: Other than having MySQL and .NET appropriate connectors installed, please also ensure you have added the `bin` and `lib` folders of your installation to your system PATH if you want to use the included database startup scripts (`run-new.bat` and `init-db.bat` specifically) as they use the `mysql` command-line client. On windows, the default installation is at `C:\Program Files\MySQL\MySQL Server 8.0`.
 
+**Authentication**: All actions are attempted as the `root` user (feel free to change). To avoid being prompted for your password while running below scripts, I strongly recommend you create a `.mylogin.cnf` CONF file using the `mysql_config_editor` - see [here](https://dev.mysql.com/doc/refman/8.0/en/mysql-config-editor.html) for quickstart.
+
+<br/>
+
+> ### hawaii-config.MySql.json
+> - Remember to replace the `User` and `Password` in your connection string with your database credentials
+> - See [here](https://dev.mysql.com/doc/connector-net/en/connector-net-8-0-connection-options.html) for all connection string options
+
+### `run-new.bat`
+> - Same behavior as described above
+
+### `run-server.bat` and `run-server.sh`
+> - Runs the hawaii server with the included `hawaii-config.MySql.json` configuration file
+
+### `init-db.bat`
+> - (Re)initializes the db
+> - See [here](https://dev.mysql.com/doc/refman/8.0/en/mysql-command-options.html) for full list of `mysql` command options
+
+### `init-cms-db.sql` 
+
+> - Semantically identical schema to MS SQL
 
 # Frontend
 
