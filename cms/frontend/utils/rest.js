@@ -145,20 +145,20 @@ export const rest_functions = {
         }
     },
     get_user: async () => {
-        const activeAccount = await msalInstance.getActiveAccount();
-        if (activeAccount == null) {
-
-        } else {
-            return await get_request_base(`${REST_ENDPOINT}/User`)
-        }
+        const data = await get_request_base(`${REST_ENDPOINT}/User`);
+        return data != null && data != undefined ? data.value[0] : {};
     },
     update_user: async (userID, fname, lname, email) => {
-        const data = await patch_request_base(`${REST_ENDPOINT}/User/guid/${userID}`, {},
-            {
-                "fname": fname,
-                "lname": lname,
-                "email": email
-            });
+        // conditionally add update fields if non-null
+        const fnameField = { "fname": fname }
+        const lnameField = { "lname": lname }
+        const emailField = { "email": email }
+        const body = {
+            ...(fname != null && fnameField),
+            ...(lname != null && lnameField),
+            ...(email != null && emailField)
+        };
+        const data = await patch_request_base(`${REST_ENDPOINT}/User/guid/${userID}`, {}, body);
         return data != null && data != undefined ? data.value : data;
     },
     delete_user: async (userID) => {

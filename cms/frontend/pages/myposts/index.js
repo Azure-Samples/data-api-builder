@@ -69,7 +69,7 @@ const wuiTheme = {
     }
 };
 
-export default function MyPosts({ user, setUser, cacheChecked }) {
+export default function MyPosts({ user, dbUser, setUser, cacheChecked }) {
     const [articles, setArticles] = useState([]);
     const [isFetched, setIsFetched] = useState(false);
 
@@ -292,13 +292,13 @@ export default function MyPosts({ user, setUser, cacheChecked }) {
                     <div className={styles.grid}>
                         {!isFetched && <div className={styles.loader}><CircularProgress isIndeterminate color='green.300' /></div>}
                         {articles.slice(0).reverse().map((article) => (
-                            <Post key={article.id} article={article} user={user} bgcolor={bgcolor}
+                            <Post key={article.id} article={article} dbUser={dbUser} bgcolor={bgcolor}
                                 delete_post={delete_post} convert_post={convert_post} update_post={update_post} />
                         ))}
                     </div>
                 </AuthenticatedTemplate>
                 <UnauthenticatedTemplate>
-                    <h1> Sorry, you can&apos;t access this </h1>
+                    <Text m={5} fontSize="xl" > Sorry, you can&apos;t access this </Text>
                 </UnauthenticatedTemplate>
             </main>
             <Footer />
@@ -306,7 +306,7 @@ export default function MyPosts({ user, setUser, cacheChecked }) {
     )
 }
 
-function Post({ article, user, delete_post, bgcolor, convert_post, update_post }) {
+function Post({ article, dbUser, delete_post, bgcolor, convert_post, update_post }) {
     // Populate the icon depending on draft/published status
     const [icon, setIcon] = useState(article.status == 2 ? "fill" : "outline");
     useEffect(() => setIcon(article.status == 2 ? "fill" : "outline"), [article]);
@@ -353,8 +353,8 @@ function Post({ article, user, delete_post, bgcolor, convert_post, update_post }
         <Box key={article.id} className={styles.card} bg={bgcolor} boxShadow={'lg'}>
             <div className={styles.post_header} style={{ backgroundColor: "#ddf4ff" }}>
                 <HStack>
-                    <Tooltip label={user.username}>
-                        <Text fontWeight="semibold"> {user.idTokenClaims.name} </Text>
+                    <Tooltip label={dbUser.email}>
+                        <Text fontWeight="semibold"> {dbUser.fname} {dbUser.lname} </Text>
                     </Tooltip>
                     <Tooltip label={
                         <span>

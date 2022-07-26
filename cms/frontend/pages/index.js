@@ -28,7 +28,7 @@ import { human_time_diff, error_toast } from "../utils/misc"
 import Footer from "../components/footer"
 
 
-export default function Home({ user, setUser, cacheChecked }) {
+export default function Home({ user, setUser, dbUser, cacheChecked }) {
     const [articles, setArticles] = useState([]);
     const [isFetched, setIsFetched] = useState(false);
     const toast = useToast()
@@ -87,7 +87,7 @@ export default function Home({ user, setUser, cacheChecked }) {
                       </div>}
                       {articles.slice(0).reverse().map((article) => (
                           <Box key={article.id} className={styles.card} bg={bgcolor} boxShadow={'lg'}>
-                              <div className={styles.post_header} style={{ backgroundColor: (user != null && user.username == article.author_email) ? "#ddf4ff" : "#edf2f7"}}>
+                              <div className={styles.post_header} style={{ backgroundColor: (dbUser != null && dbUser.email == article.author_email) ? "#ddf4ff" : "#edf2f7"}}>
                                   <HStack>
                                       <Tooltip label={article.author_email}> 
                                           <Text fontWeight="semibold"> {article.author_name} </Text>
