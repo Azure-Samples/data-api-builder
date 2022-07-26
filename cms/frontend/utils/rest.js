@@ -109,7 +109,7 @@ export const rest_functions = {
                 "title": newTitle,
                 "body": newBody,
                 "status": newStatus,
-                "published": new Date().toISOString().slice(0, -1)
+                "published": new Date().toISOString()
             });
         return data != null && data != undefined ? data.value : data;
     },
@@ -117,7 +117,7 @@ export const rest_functions = {
         const response = await patch_request_base(`${REST_ENDPOINT}/Article/id/${articleID}`, {},
             {
                 "status": newStatus,
-                "published": new Date().toISOString().slice(0, -1)
+                "published": new Date().toISOString()
             });
         return response;
     },
