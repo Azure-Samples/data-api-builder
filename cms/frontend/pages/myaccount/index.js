@@ -24,7 +24,7 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-reac
 // Module Imports
 //import { gql_functions as func } from "../../utils/gql"
 import { rest_functions as func } from "../../utils/rest"
-import { success_toast, error_toast, info_toast } from "../../utils/misc"
+import { success_toast, error_toast, info_toast, surface_appropriate_error } from "../../utils/misc"
 import { msalInstance } from "../../auth_config"
 import Footer from "../../components/footer"
 
@@ -55,37 +55,29 @@ export default function MyAccount({ user, setUser, setDbUser, cacheChecked }) {
     const basecolor = useColorModeValue('whitesmoke', 'gray.800');
     const bgcolor = useColorModeValue('white', 'gray.800');
 
-    // Utility function for (re)fetching articles
-    const fetch_account = async () => {
+    // Utility function for (re)fetching account data
+    // This function shouldn't change, so useCallback memoizes it to prevent recreation each component render
+    const fetch_account = React.useCallback(async () => {
         try {
             const data = await func.get_user();
             setUserData(data == null || data == undefined ? {} : data);
             setDbUser(data);
         } catch (err) {
-            surface_appropriate_error(err);
+            console.log(toast);
+            surface_appropriate_error(toast, err);
             setUserData({});
         } finally {
             setIsFetched(true);
         }
-    }
+    }, [setDbUser, toast]);
 
     // Initial data fetching (wait for cache to be checked)
     useEffect(() => {
         if (!isFetched && cacheChecked) {
             fetch_account();
         }
-    }, [cacheChecked])
+    }, [cacheChecked, fetch_account, isFetched])
 
-
-    // Helper to show as useful an error as possible
-    const surface_appropriate_error = (err) => {
-        toast.closeAll();
-        if (err.status != null && err.status != undefined) { // more than likely an error surfaced by hawaii
-            error_toast(toast, { title: `${err.status}`, description: err.status == 403 ? `Unauthorized` : `${err.statusText}` })
-        } else {
-            error_toast(toast, { title: "Network Error", description: "Check network connection and/or developer console" })
-        }
-    }
 
     const update_account = async () => {
         if (validate_update()) {
@@ -98,7 +90,7 @@ export default function MyAccount({ user, setUser, setDbUser, cacheChecked }) {
                 setLname(lname.trim());
                 setEmail(email.trim());
             } catch (err) {
-                surface_appropriate_error(err);
+                surface_appropriate_error(toast, err);
             } finally {
                 setIsFetched(true);
             }
@@ -162,7 +154,7 @@ export default function MyAccount({ user, setUser, setDbUser, cacheChecked }) {
             setUser(null);
             setDbUser(null);
         } catch (err) {
-            surface_appropriate_error(err);
+            surface_appropriate_error(toast, err);
         } finally {
             setIsFetched(true);
         }

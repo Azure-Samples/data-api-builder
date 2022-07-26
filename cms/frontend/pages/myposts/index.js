@@ -28,7 +28,7 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-reac
 // Module Imports
 //import { gql_functions as func } from "../../utils/gql"
 import { rest_functions as func } from "../../utils/rest"
-import { human_time_diff, isNullOrWhitespace, success_toast, error_toast, info_toast } from "../../utils/misc"
+import { human_time_diff, isNullOrWhitespace, success_toast, error_toast, info_toast, surface_appropriate_error } from "../../utils/misc"
 import Footer from "../../components/footer"
 
 // Welcome UI Imports
@@ -93,34 +93,25 @@ export default function MyPosts({ user, dbUser, setUser, cacheChecked }) {
     }, [createBodyInput])
 
     // Utility function for (re)fetching articles
-    const fetch_articles = async () => {
+    // This function shouldn't change, so useCallback memoizes it to prevent recreation each component render
+    const fetch_articles = React.useCallback(async () => {
         try {
             const data = await func.get_my_articles();
             setArticles(data);
         } catch (err) {
-            surface_appropriate_error(err);
+            surface_appropriate_error(toast, err);
         } finally {
             setIsFetched(true);
         }
-    }
+    }, [toast])
 
     // Initial data fetching (wait for cache to be checked)
     useEffect(() => {
         if (!isFetched && cacheChecked) {
             fetch_articles();
         }
-    }, [cacheChecked])
+    }, [cacheChecked, fetch_articles, isFetched])
 
-
-    // Helper to show as useful an error as possible
-    const surface_appropriate_error = (err) => {
-        toast.closeAll();
-        if (err.status != null && err.status != undefined) { // more than likely an error surfaced by hawaii
-            error_toast(toast, { title: `${err.status}`, description: err.status == 403 ? `Unauthorized` : `${err.statusText}` })
-        } else {
-            error_toast(toast, { title: "Network Error", description: "Check network connection and/or developer console" })
-        }
-    }
 
     // Create an article and trigger data refetch, which triggers page rerender
     const submit_post = async (statusID) => {
@@ -136,7 +127,7 @@ export default function MyPosts({ user, dbUser, setUser, cacheChecked }) {
                 }
                 closeEditor();
             } catch (err) {
-                surface_appropriate_error(err);
+                surface_appropriate_error(toast, err);
             } finally {
                 setIsFetched(true);
             }
@@ -179,7 +170,7 @@ export default function MyPosts({ user, dbUser, setUser, cacheChecked }) {
                 description: `Deleted article with ID: ${articleID}`
             });
         } catch (err) {
-            surface_appropriate_error(err);
+            surface_appropriate_error(toast, err);
         } finally {
             setIsFetched(true);
         }
@@ -197,7 +188,7 @@ export default function MyPosts({ user, dbUser, setUser, cacheChecked }) {
             }
             await fetch_articles();
         } catch (err) {
-            surface_appropriate_error(err);
+            surface_appropriate_error(toast, err);
         } finally {
             setIsFetched(true);
         }
@@ -219,7 +210,7 @@ export default function MyPosts({ user, dbUser, setUser, cacheChecked }) {
                     setIconLoading(false);
                     await fetch_articles();
                 } catch (err) {
-                    surface_appropriate_error(err);
+                    surface_appropriate_error(toast, err);
                 } finally {
                     setIsFetched(true);
                 }

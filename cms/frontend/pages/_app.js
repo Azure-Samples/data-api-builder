@@ -32,7 +32,7 @@ async function checkActiveUser(setUser, setDbUser, setCacheChecked, toast) {
         setUser(activeAccount);
         const associatedDbUser = await func.get_user();
         if (associatedDbUser == null || associatedDbUser == undefined) {
-            error_toast(toast, { title: "User Not Found", description: <>You're signed in but we can't find your user <br/> please sign out and sign back in </> })
+            error_toast(toast, { title: "User Not Found", description: <>You&apos;re signed in but we can&apos;t find your user <br/> please sign out and sign back in </> })
         } else {
             setDbUser(associatedDbUser);
         }
@@ -51,7 +51,7 @@ function MyApp({ Component, pageProps }) {
 
     useEffect(() => {
         checkActiveUser(setUser, setDbUser, setCacheChecked, toast);
-    }, []);
+    }, [toast]);
 
     return (
         <MsalProvider instance={msalInstance}>
