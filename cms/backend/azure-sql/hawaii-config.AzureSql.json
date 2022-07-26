@@ -48,7 +48,7 @@
             {
               "action": "create",
               "policy": {
-                "database": ""
+                "request": "@claims.oid eq @body.guid"
               },
               "fields": {
                 "include": [ "*" ]
@@ -69,7 +69,8 @@
                 "database": "@claims.oid eq @item.guid"
               },
               "fields": {
-                "include": [ "*" ]
+                "include": [ "*" ],
+                "exclude": [ "email" ]
               }
             },
             {

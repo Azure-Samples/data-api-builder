@@ -69,7 +69,8 @@
                 "database": "@claims.oid eq @item.guid"
               },
               "fields": {
-                "include": [ "*" ]
+                "include": [ "*" ],
+                "exclude": [ "email" ]
               }
             },
             {
