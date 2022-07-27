@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  data-api-builder:
+    image: "hawaiiacr.azurecr.io/hawaii/refs/heads/main:latest"
+    ports:
+      - "5000:5000"
+    volumes:
+      - "./todo-001.json:/App/hawaii-config.json"
