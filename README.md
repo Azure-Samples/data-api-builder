@@ -8,7 +8,7 @@ The well-known  [ToDo MVC sample](https://todomvc.com/) using Vue, Hawaii and Az
 
 ## CMS
 
-A simple but complete CMS application built with Next.js, Hawaii and Azure SQL DB
+A simple but complete CMS application built with Next.js, Hawaii and your choice of Azure SQL DB or MySQL.
 
 ## Tour of Super Heroes
 
