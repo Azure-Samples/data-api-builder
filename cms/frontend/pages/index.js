@@ -24,37 +24,34 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-reac
 // Module Imports
 //import { gql_functions as func } from "../utils/gql"
 import { rest_functions as func } from "../utils/rest"
-import { human_time_diff, error_toast } from "../utils/misc"
+import { human_time_diff, error_toast, surface_appropriate_error } from "../utils/misc"
 import Footer from "../components/footer"
 
 
-export default function Home({ user, setUser, cacheChecked }) {
+export default function Home({ user, setUser, dbUser, cacheChecked }) {
     const [articles, setArticles] = useState([]);
     const [isFetched, setIsFetched] = useState(false);
     const toast = useToast()
 
     // Utility function for (re)fetching articles
-    const fetch_articles = async () => {
+    // This function shouldn't change, so useCallback memoizes it to prevent recreation each component render
+    const fetch_articles = React.useCallback(async () => {
         try {
             const data = await func.get_all_articles(true);
             setArticles(data);
         } catch (err) {
-            if (err.status != null && err.status != undefined) { // more than likely an error surfaced by hawaii
-                error_toast(toast, { title: `${err.status}`, description: err.status == 403 ? `Unauthorized` : `${err.statusText}` })
-            } else {
-                error_toast(toast, { title: "Fetch Error", description: "Check network connection and/or developer console" })
-            }
+            surface_appropriate_error(toast, err);
         } finally {
             setIsFetched(true);
         }
-    }
+    }, [toast])
 
     // Initial data fetching (wait for cache to be checked)
     useEffect(() => {
         if (!isFetched && cacheChecked) {
             fetch_articles();
         }
-    }, [cacheChecked])
+    }, [cacheChecked, fetch_articles, isFetched])
 
 
     const basecolor = useColorModeValue('whitesmoke', 'gray.800');
@@ -76,10 +73,10 @@ export default function Home({ user, setUser, cacheChecked }) {
                   </h1>
 
                   <p className={styles.description}>
-                      Made with <a href="https://nextjs.org">Next.js</a>, MS SQL, and Azure Data API Builder
+                      Made with <a href="https://nextjs.org">Next.js</a> and Azure Data API Builder
                   </p>
               </Box>
-              <Box p={10}/>
+              <Box p={5}/>
               <div className={styles.grid}>
                   {!isFetched &&
                       <div className={styles.loader}>
@@ -87,7 +84,7 @@ export default function Home({ user, setUser, cacheChecked }) {
                       </div>}
                       {articles.slice(0).reverse().map((article) => (
                           <Box key={article.id} className={styles.card} bg={bgcolor} boxShadow={'lg'}>
-                              <div className={styles.post_header} style={{ backgroundColor: (user != null && user.username == article.author_email) ? "#ddf4ff" : "#edf2f7"}}>
+                              <div className={styles.post_header} style={{ backgroundColor: (dbUser != null && dbUser.email == article.author_email) ? "#ddf4ff" : "#edf2f7"}}>
                                   <HStack>
                                       <Tooltip label={article.author_email}> 
                                           <Text fontWeight="semibold"> {article.author_name} </Text>

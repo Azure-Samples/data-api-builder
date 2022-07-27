@@ -14,17 +14,16 @@ import {
     Button, ButtonGroup, Icon, Heading, Textarea, VStack, StackDivider,
     Box, CircularProgress, Center, Stack, Text, useColorModeValue, useToast
 } from '@chakra-ui/react'
-import { BsPlusCircle, BsTrash } from "react-icons/bs";
 import { SiMicrosoftazure } from "react-icons/si";
 
 // Module Imports
-import { acquireToken } from '../../auth_config'
+import { acquireToken, msalInstance } from '../../auth_config'
 import { BrowserAuthError } from '../../node_modules/@azure/msal-browser/dist/index';
 import { rest_functions as func } from "../../utils/rest"
 import { success_toast, error_toast } from "../../utils/misc"
 
 
-export default function Auth({ user, setUser }) {
+export default function Auth({ user, setUser, setDbUser }) {
 
     const router = useRouter()
     const toast = useToast()
@@ -58,16 +57,26 @@ export default function Auth({ user, setUser }) {
                     if (response instanceof Response && response.status == 201) {
                         // set state vars, flash account creation success, navigate back home
                         flash_success(loginResponse, "Account Created", "You've successfully added your account!");
-
+                        const nameArray = loginResponse.account.name.split(' ');
+                        setDbUser(
+                            {
+                                guid: loginResponse.account.idTokenClaims.oid,
+                                fname: nameArray[0],
+                                lname: nameArray[nameArray.length - 1],
+                                email: loginResponse.account.username
+                            });
                     } else if (response != null && response != undefined && Array.isArray(response.value) && response.value.length == 1) {
                         // user already exists in db, just log them in
                         flash_success(loginResponse, "Login Success", `Welcome back, ${response.value[0].fname}`);
+                        setDbUser(response.value[0]);
 
                     } else {
                         error_toast(toast, { title: `${response.status}`, description: response.status == 403 ? `Unauthorized` : `${response.statusText}` });
+                        await msalInstance.setActiveAccount(null);
                     }
                 } catch (err) {
                     error_toast(toast, { title: 'Network Error', description: "Check network connection and/or developer console" });
+                    await msalInstance.setActiveAccount(null);
                 }
             }
         })

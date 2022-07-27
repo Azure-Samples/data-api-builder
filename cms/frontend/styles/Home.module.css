@@ -64,6 +64,7 @@
 .grid {
   display: grid;
   width: 100%;
+  grid-gap: 1.5em;
 }
 
 .loader {

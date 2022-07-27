@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "start msedge --new-window http://localhost:3000 & next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "start msedge --new-window http://localhost:3000 & next start",
     "lint": "next lint",
     "https": "local-ssl-proxy --key localhost-key.pem --cert localhost.pem --source 3001 --target 3000"
   },
@@ -34,6 +34,7 @@
     "react-icons": "^4.4.0",
     "react-markdown": "^8.0.3",
     "remark-gfm": "^3.0.1",
+    "sharp": "^0.30.7",
     "styled-components": "^5.3.5"
   },
   "devDependencies": {

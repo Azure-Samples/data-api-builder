@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/hawaii.draft-01.schema.json",
   "data-source": {
-    "database-type": "mssql",
-    "connection-string": "Server=tcp:127.0.0.1,1433;Database=cms-db;Integrated Security=true"
+    "database-type": "mysql",
+    "connection-string": "server=localhost;database=cms-db;AllowUserVariables=true;User=root;Password=<REPLACEME>;"
   },
   "mssql": {
     "set-session-context": false
@@ -48,7 +48,7 @@
             {
               "action": "create",
               "policy": {
-                "database": ""
+                "request": "@claims.oid eq @body.guid"
               },
               "fields": {
                 "include": [ "*" ]
@@ -69,7 +69,8 @@
                 "database": "@claims.oid eq @item.guid"
               },
               "fields": {
-                "include": [ "*" ]
+                "include": [ "*" ],
+                "exclude": [ "email" ]
               }
             },
             {
