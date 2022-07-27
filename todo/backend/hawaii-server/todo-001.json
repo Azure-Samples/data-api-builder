@@ -6,14 +6,7 @@
     },
     "runtime": {
         "host": {
-            "mode": "development",
-            "authentication": {
-                "provider": "AzureAD",
-                "jwt": {
-                  "audience": "e98794ab-cdaa-4ed3-ad08-0552c47254e2",
-                  "issuer": "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/v2.0"
-                }
-            }
+            "mode": "development"
         },
         "rest": {
             "enabled": true
@@ -23,17 +16,12 @@
         }
     },
     "entities": {
-        "todo": {
+        "Todo": {
             "source": "s001.todos",
             "permissions": [
                 {
                     "role": "anonymous",
-                    "actions": [
-                        {
-                            "action": "*",
-                            "include": ["id", "title", "completed"]
-                        }
-                    ]
+                    "actions": [ "*" ]
                 }
             ]
         }
