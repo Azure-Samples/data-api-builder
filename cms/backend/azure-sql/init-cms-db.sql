@@ -1,17 +1,6 @@
-USE master;
-GO
+-- Azure SQL DB does not support context switching using USE statement
+-- So, assumes valid connection to hosted cms-db by this point
 
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'cms-db')
-BEGIN
-	PRINT N'cms-db does not exist, attempting to create...'; 
-	CREATE DATABASE [cms-db];
-END
-GO
-
-USE [cms-db];
-GO
-
-DROP TABLE IF EXISTS user_article_link;
 DROP TABLE IF EXISTS articles;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS article_statuses;
@@ -21,11 +10,6 @@ DROP VIEW IF EXISTS articles_detailed;
 DROP TRIGGER IF EXISTS article_date_update;
 
 GO
-
-/* Changes from V1
-- Current state of hawaii AuthZ does not support the joins or nested policies needed for v1 schema design (or any many-to-many relation with authz enforcement)
-- Simplifying the design, making articles to users/authors a many to one relation (an article can only have one author)
-*/
 
 -- DDL
 CREATE TABLE article_statuses(
@@ -53,9 +37,9 @@ CREATE TABLE articles(
 );
 
 -- Stored procedure for testing
-EXEC('CREATE PROCEDURE GetUser @user_id varchar(50)
+EXEC('CREATE PROCEDURE GetUser @user_ids varchar(50) = ''1''
 AS
-SELECT * FROM users WHERE users.guid = @user_id');
+SELECT * FROM users WHERE users.guid = @user_ids');
 
 -- Ease-of-use view for article/author/status join
 EXEC('CREATE VIEW articles_detailed AS 

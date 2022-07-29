@@ -5,6 +5,7 @@
 export const human_time_diff = (date) => {
     // Date is stored as UTC in MS SQL, must append 'Z' for date constructor to interpret
     let milliDiff = new Date() - new Date(`${date}Z`);
+    if (milliDiff <= 0) return "a moment"; // Published date in the future? Sign of mismatched timezone.
     const times = [
         ['year', 31536000000],
         ['month', 2628000000],
@@ -32,12 +33,21 @@ export const isNullOrWhitespace = (input) => {
 }
 
 // Chakra UI toast helpers
+export const surface_appropriate_error = (toast, err) => {
+    toast.closeAll();
+    if (err.status != null && err.status != undefined) { // more than likely an error surfaced by hawaii
+        error_toast(toast, { title: `${err.status}`, description: err.status == 403 ? `Unauthorized` : `${err.statusText}` })
+    } else {
+        error_toast(toast, { title: "Fetch/Network Error", description: "Check network connection and/or developer console" })
+    }
+}
+
 export const error_toast = (toast, options) => {
     toast_helper(toast, { ...options, status: 'error' });
 }
 
 export const success_toast = (toast, options) => {
-    toast_helper(toast, {...options, status: 'success'});
+    toast_helper(toast, { ...options, status: 'success' });
 }
 
 export const info_toast = (toast, options) => {

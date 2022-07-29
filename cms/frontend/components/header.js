@@ -20,7 +20,7 @@ import { AiFillHome } from 'react-icons/ai';
 import { msalInstance } from "../auth_config"
 
 
-const logout = async (setUser, router) => {
+const logout = async (setUser, setDbUser, router) => {
     await router.push("/")
     const currentAccount = await msalInstance.getActiveAccount();
     await msalInstance.logoutPopup(
@@ -29,10 +29,11 @@ const logout = async (setUser, router) => {
             postLogoutRedirectUri: "http://localhost:3000/auth"
         });
     setUser(null);
+    setDbUser(null);
     // TODO: Error check logout and toast to client
 }
 
-export default function Header({ user, setUser }) {
+export default function Header({ user, setUser, dbUser, setDbUser }) {
     const { colorMode, toggleColorMode } = useColorMode();
     const router = useRouter();
 
@@ -43,7 +44,7 @@ export default function Header({ user, setUser }) {
                     {router.pathname == "/auth" && <Link href="/">
                         <Button><Icon as={AiFillHome} boxSize={5} /></Button>
                     </Link>}
-                    <Box mr={'auto'} ml={'1em'}>{user != null ? `Welcome, ${user.username}` : ""}</Box>
+                    <Box mr={'auto'} ml={'1em'}>{dbUser != null ? `Welcome, ${dbUser.fname}` : ""}</Box>
 
                     <Flex alignItems={'center'}>
                         <Stack direction={'row'} spacing={7}>
@@ -58,7 +59,7 @@ export default function Header({ user, setUser }) {
                                     </Link>
                                 }
                                 {user != null &&  
-                                    <Button onClick={()=>logout(setUser, router)}> Sign Out </Button>
+                                    <Button onClick={()=>logout(setUser, setDbUser, router)}> Sign Out </Button>
                                 }
                                     </Center>
                         </Stack>

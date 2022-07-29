@@ -1,5 +1,8 @@
 import { msalInstance, scopes } from "../auth_config"
 
+// Hawaii's REST endpoint. Replace if running as hosted through AppService/SWA
+const REST_ENDPOINT = "https://localhost:5001";
+
 // Helpers
 const rest_request_base = async (url, options, returnResponse = false) => {
     // Acquire token on a per request basis
@@ -74,7 +77,7 @@ export const rest_functions = {
     // Article utilities
     get_all_articles: async (verbose) => {
         // Conditionally query the article table or a view of article, author, and status tables combined
-        const url = "https://localhost:5001/Article" + (verbose ? "Detailed" : "") + "?$orderby=published";
+        const url = `${REST_ENDPOINT}/Article` + (verbose ? "Detailed" : "") + "?$orderby=published";
         const data = await get_request_base(url,
         {
         'X-MS-API-ROLE': 'anonymous'
@@ -82,7 +85,7 @@ export const rest_functions = {
         return data != null && data != undefined ? data.value : data;
     },
     get_my_articles: async (verbose) => {
-        const url = "https://localhost:5001/Article" + (verbose ? "Detailed" : "") + "?$orderby=published";
+        const url = `${REST_ENDPOINT}/Article` + (verbose ? "Detailed" : "") + "?$orderby=published";
         const data = await get_request_base(url,
             {
             'X-MS-API-ROLE': 'authenticated',
@@ -91,7 +94,7 @@ export const rest_functions = {
     },
     create_article: async (titleInput, bodyInput, status = 1) => {
         const activeAccount = await msalInstance.getActiveAccount();
-        const data = await post_request_base("https://localhost:5001/Article", {},
+        const data = await post_request_base(`${REST_ENDPOINT}/Article`, {},
             {
                 "title": titleInput,
                 "body": bodyInput,
@@ -101,34 +104,35 @@ export const rest_functions = {
         return data != null && data != undefined ? data.value : data;
     },
     update_article: async (articleID, newTitle, newBody, newStatus) => {
-        const data = await patch_request_base(`https://localhost:5001/Article/id/${articleID}`, {},
+        const data = await patch_request_base(`${REST_ENDPOINT}/Article/id/${articleID}`, {},
             {
                 "title": newTitle,
                 "body": newBody,
                 "status": newStatus,
+                "published": new Date().toISOString()
             });
         return data != null && data != undefined ? data.value : data;
     },
     update_article_status: async (articleID, newStatus) => {
-        const response = await patch_request_base(`https://localhost:5001/Article/id/${articleID}`, {},
+        const response = await patch_request_base(`${REST_ENDPOINT}/Article/id/${articleID}`, {},
             {
                 "status": newStatus,
-                "published": new Date().toISOString().slice(0, -1)
+                "published": new Date().toISOString()
             });
         return response;
     },
     delete_article: async (articleID) => {
-        return await delete_request_base(`https://localhost:5001/Article/id/${articleID}`);
+        return await delete_request_base(`${REST_ENDPOINT}/Article/id/${articleID}`);
     },
     // User utilities
     get_or_create_user: async () => {
         // check if user already exists (is guid in users table)
-        const user_data = await get_request_base("https://localhost:5001/User");
+        const user_data = await get_request_base(`${REST_ENDPOINT}/User`);
 
         // if empty/user not yet in db, return post request response object
         if (user_data == undefined || user_data == null || (Array.isArray(user_data.value) && user_data.value.length == 0)) {
             const activeAccount = await msalInstance.getActiveAccount();
-            return await post_request_base("https://localhost:5001/User", {},
+            return await post_request_base(`${REST_ENDPOINT}/User`, {},
                 {
                     "guid": activeAccount.idTokenClaims.oid,
                     "fname": activeAccount.name.split(' ')[0],
@@ -140,17 +144,25 @@ export const rest_functions = {
             return user_data;
         }
     },
+    get_user: async () => {
+        const data = await get_request_base(`${REST_ENDPOINT}/User`);
+        return data != null && data != undefined ? data.value[0] : {};
+    },
     update_user: async (userID, fname, lname, email) => {
-        const data = await patch_request_base(`https://localhost:5001/User/guid/${userID}`, {},
-            {
-                "fname": fname,
-                "lname": lname,
-                "email": email
-            });
+        // conditionally add update fields if non-null
+        const fnameField = { "fname": fname }
+        const lnameField = { "lname": lname }
+        const emailField = { "email": email }
+        const body = {
+            ...(fname != null && fnameField),
+            ...(lname != null && lnameField),
+            ...(email != null && emailField)
+        };
+        const data = await patch_request_base(`${REST_ENDPOINT}/User/guid/${userID}`, {}, body);
         return data != null && data != undefined ? data.value : data;
     },
     delete_user: async (userID) => {
-        return await delete_request_base(`https://localhost:5001/User/guid/${userID}`);
+        return await delete_request_base(`${REST_ENDPOINT}/User/guid/${userID}`);
     }
 
 }
