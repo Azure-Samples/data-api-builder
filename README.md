@@ -24,7 +24,7 @@ The well-known  [ToDo MVC sample](https://todomvc.com/) using Vue, Azure Data AP
 
 ### CMS
 
-A simple but complete CMS application built with Next.js, Azure Data API builder and Azure SQL DB
+A simple but complete CMS application built with Next.js, Azure Data API builder and your choice of Azure SQL DB or MySQL.
 
 ### Tour of Super Heroes
 
