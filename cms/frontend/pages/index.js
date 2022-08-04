@@ -89,7 +89,7 @@ export default function Home({ user, setUser, dbUser, cacheChecked }) {
                                       <Tooltip label={article.author_email}> 
                                           <Text fontWeight="semibold"> {article.author_name} </Text>
                                       </Tooltip>
-                                      <Text> published {human_time_diff(article.published)} ago </Text>
+                                      <Text> {article.status == "published" ? "published" : "saved"} {human_time_diff(article.published)} ago </Text>
                                   </HStack>
                                   <Tooltip label={new Date(`${article.published}Z`).toLocaleTimeString()}>
                                       <Text> {new Date(`${article.published}Z`).toLocaleDateString()} </Text>
