@@ -20,6 +20,12 @@ This sample supports 3 backend options at this time:
 Q: _Why not postgres or cosmos?_ 
 A: Hawaii not supporting views for Postgres and cosmos not supporting views.. at all.. prevents them from fitting with the agnostic api calls the frontend makes.
 
+## Configuration File
+You may either use the included, static config files included in each subdirectory listed below for your chosen database (recommended for most), or you can use the included `backend/setup-config.bat` script that executes the sequence of CLI tool commands that generates a semantically identical `hawaii-config.json` file on demand. 
+
+If you choose the latter:
+- Remember to change the connection string in the first line of `setup-config.bat`. Also, remember to replace the `authentication` section if needed, as it defaults to `StaticWebApps`. If you use this method to generate your config file and also want to use the included startup scripts below, remember to either change the path to the config file in `run-server.bat` or simply move/rename the file to match the name referenced, e.g. if you want to use SQL Server, place it in the `ms-sql` directory and rename it `hawaii-config.MsSql.json`.
+
 ## `backend/ms-sql`
 **Note:** startup scripts that use `sqlcmd` to initialize the database attempt to use windows authentication mode. If for any reason this fails, update `init-db.bat` to the following: `sqlcmd -U {your_user} -P {your_pw} -i init-cms-db.sql`. See more about available options [here](https://docs.microsoft.com/en-us/sql/tools/sqlcmd-utility?view=sql-server-ver16). 
 <br/>
