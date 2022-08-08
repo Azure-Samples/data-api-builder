@@ -1,0 +1,54 @@
+{
+    "$schema": "hawaii.draft-01.schema.json",
+    "data-source": {
+        "database-type": "mssql",
+        "connection-string": "Server=localhost;Database=Data-API-Builder-Demo;User ID=dab_user;Password=we09m!as-qwAZ_a;TrustServerCertificate=true"
+    },
+    "runtime": {
+        "host": {
+            "mode": "development",
+            "cors": {
+                "origins": [
+                    "http://localhost:8080"
+                ],
+                "allow-credentials": true
+            }
+        }
+    },
+    "entities": {
+        "Todo": {
+            "source": "dbo.todos",
+            "relationships": {
+                "category": {
+                    "cardinality": "one",
+                    "target.entity": "Category"
+                }
+            },
+            "permissions": [
+                {
+                    "role": "anonymous",
+                    "actions": [
+                        "*"
+                    ]
+                }
+            ]
+        },
+        "Category": {
+            "source": "dbo.categories",
+            "relationships": {
+                "todos": {
+                    "cardinality": "many",
+                    "target.entity": "Todo"
+                }
+            },
+            "permissions": [
+                {
+                    "role": "anonymous",
+                    "actions": [
+                        "*"
+                    ]
+                }
+            ]
+        }
+    }
+}

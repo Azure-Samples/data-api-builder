@@ -49,7 +49,7 @@
 </template>
 
 <script>
-var API = "/api/graphql";
+var API = "/graphql";
 var HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json' };		
 
 var filters = {
