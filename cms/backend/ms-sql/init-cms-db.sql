@@ -1,6 +1,9 @@
+/*
+
+Uncomment if running locally and you need to create a new database for this sample
+
 USE master;
 GO
-
 IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'cms-db')
 BEGIN
 	PRINT N'cms-db does not exist, attempting to create...'; 
@@ -10,16 +13,16 @@ GO
 
 USE [cms-db];
 GO
+*/
 
-DROP TABLE IF EXISTS user_article_link;
-DROP TABLE IF EXISTS articles;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS article_statuses;
+DROP TABLE IF EXISTS dbo.user_article_link;
+DROP TABLE IF EXISTS dbo.articles;
+DROP TABLE IF EXISTS dbo.users;
+DROP TABLE IF EXISTS dbo.article_statuses;
 
-DROP PROCEDURE IF EXISTS GetUser;
-DROP VIEW IF EXISTS articles_detailed;
-DROP TRIGGER IF EXISTS article_date_update;
-
+DROP PROCEDURE IF EXISTS dbo.GetUser;
+DROP VIEW IF EXISTS dbo.articles_detailed;
+DROP TRIGGER IF EXISTS dbo.article_date_update;
 GO
 
 /* Changes from V1
@@ -28,50 +31,58 @@ GO
 */
 
 -- DDL
-CREATE TABLE article_statuses(
-	id int IDENTITY(1, 1) PRIMARY KEY,
-	name varchar(100) NOT NULL
+CREATE TABLE dbo.article_statuses 
+(
+	[id] int IDENTITY(1, 1) PRIMARY KEY,
+	[name] varchar(100) NOT NULL
 );
 
-CREATE TABLE users(
-	guid varchar(50) PRIMARY KEY,
-	fname varchar(100) NOT NULL,
-	lname varchar(100) NOT NULL,
-	email varchar(100) NOT NULL CHECK(email like '_%@_%._%')
+CREATE TABLE dbo.users
+(
+	[guid] varchar(50) PRIMARY KEY,
+	[fname] varchar(100) NOT NULL,
+	[lname] varchar(100) NOT NULL,
+	[email] varchar(100) NOT NULL CHECK([email] like '_%@_%._%')
 );
 
-CREATE TABLE articles(
-    id int IDENTITY(1, 1) PRIMARY KEY,
-    title varchar(100) NOT NULL,
-	body varchar(max) NOT NULL,
-	published datetime DEFAULT GETUTCDATE(), 
-	status int NOT NULL FOREIGN KEY REFERENCES article_statuses(id)
-	ON UPDATE CASCADE, -- ON DELETE will reject/cannot delete a status from the database if an article is assigned to it
-	author_id varchar(50) NOT NULL FOREIGN KEY REFERENCES users(guid)
-	ON UPDATE CASCADE
-	ON DELETE CASCADE -- ON DELETE of author from user table, all associated articles are trashed
+CREATE TABLE dbo.articles
+(
+    [id] int IDENTITY(1, 1) PRIMARY KEY,
+    [title] varchar(100) NOT NULL,
+	[body] varchar(max) NOT NULL,
+	[published] datetime2 DEFAULT GETUTCDATE(), 
+	[status] int NOT NULL FOREIGN KEY REFERENCES article_statuses(id)
+		ON UPDATE CASCADE, -- ON DELETE will reject/cannot delete a status from the database if an article is assigned to it
+	[author_id] varchar(50) NOT NULL FOREIGN KEY REFERENCES users(guid)
+		ON UPDATE CASCADE
+		ON DELETE CASCADE -- ON DELETE of author from user table, all associated articles are trashed
 );
+GO
 
 -- Stored procedure for testing
-EXEC('CREATE PROCEDURE GetUser @user_ids varchar(50) = ''1''
+CREATE PROCEDURE dbo.GetUser @user_ids varchar(50) = '1'
 AS
-SELECT * FROM users WHERE users.guid = @user_ids');
+SELECT * FROM users WHERE users.guid = @user_ids;
+GO
 
 -- Ease-of-use view for article/author/status join
-EXEC('CREATE VIEW articles_detailed AS 
-SELECT a.id, a.title, a.body, a.published,
-u.fname + '' '' + u.lname AS author_name, u.email AS author_email, 
-s.name AS status
-FROM dbo.articles AS a 
-JOIN dbo.users AS u
-ON a.author_id = u.guid
-JOIN dbo.article_statuses AS s
-ON a.status = s.id');
+CREATE VIEW dbo.articles_detailed AS 
+SELECT 
+	a.id, a.title, a.body, a.published,
+	u.fname + ' ' + u.lname AS author_name, u.email AS author_email, 
+	s.name AS status
+FROM 
+	dbo.articles AS a 
+JOIN 
+	dbo.users AS u ON a.author_id = u.guid
+JOIN 
+	dbo.article_statuses AS s ON a.status = s.id;
+GO
 
 /*
 -- Trigger to auto-update date any time article is changed (i.e. moved to published)
 -- Note: Hawaii does not support triggers on update due to OUTPUT without INTO clause (see https://github.com/Azure/hawaii-engine/issues/452)
-EXEC('CREATE TRIGGER article_date_update ON articles
+CREATE TRIGGER article_date_update ON articles
 AFTER UPDATE
 AS
 BEGIN
@@ -79,7 +90,7 @@ SET NOCOUNT ON;
 UPDATE articles set published = GETDATE()
 WHERE id in 
 (SELECT id FROM inserted)
-END');
+END;
 */
 
 -- DML
