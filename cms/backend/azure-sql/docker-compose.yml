@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  hawaii:
+    image: "dabcms.azurecr.io/engine:latest"
+    command: "dotnet run --ConfigFileName hawaii-config.AzureSQL.json"
+    ports:
+      - "5000:5000"
+    volumes:
+      - "./hawaii-config.AzureSQL.json:/App/hawaii-config.AzureSQL.json"

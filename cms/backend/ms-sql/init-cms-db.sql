@@ -1,9 +1,6 @@
-/*
-
-Uncomment if running locally and you need to create a new database for this sample
-
 USE master;
 GO
+
 IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'cms-db')
 BEGIN
 	PRINT N'cms-db does not exist, attempting to create...'; 
@@ -13,7 +10,6 @@ GO
 
 USE [cms-db];
 GO
-*/
 
 DROP TABLE IF EXISTS dbo.user_article_link;
 DROP TABLE IF EXISTS dbo.articles;

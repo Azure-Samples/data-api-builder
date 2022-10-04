@@ -1,0 +1,57 @@
+{
+  "$schema": "dab.draft-01.schema.json",
+  "data-source": {
+    "database-type": "mssql",
+    "connection-string": "Server=localhost;Database=DAB_Todo;User ID=dab_test_user;Password=DAB_Pas$w0rD!;TrustServerCertificate=true"
+  },
+  "runtime": {
+    "rest": {
+      "path": "/api"
+    },
+    "graphql": {
+      "path": "/graphql"
+    },
+    "host": {
+      "mode": "development",      
+      "cors": {
+        "origins": [ "http://localhost:4280", "http://localhost:8080" ],
+        "allow-credentials": true
+      },
+      "authentication": {
+        "provider": "StaticWebApps"
+      }
+    }
+  },
+  "entities": {
+    "Todo": {
+      "source": "dbo.todos",
+      "rest": {
+        "path": "todo"
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "*",
+              "policy": {
+                "database": "@item.owner_id eq 'public'"
+              }
+            }            
+          ]
+        },
+        {
+          "role": "authenticated",
+          "actions": [
+            {
+              "action": "*",
+              "policy": {
+                "database": "@item.owner_id eq @claim.userId"
+              }
+            }            
+          ]
+        }
+      ]
+    }
+  }
+}

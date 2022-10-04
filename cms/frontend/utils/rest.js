@@ -1,8 +1,7 @@
 import { msalInstance, scopes } from "../auth_config"
-require('dotenv').config();
 
 // Hawaii's REST endpoint. Replace if running as hosted through AppService/SWA
-const REST_ENDPOINT = process.env.REST_ENDPOINT;
+const REST_ENDPOINT = process.env.REST_ENDPOINT ?? "http://20.252.81.170:5000/api";
 
 // Helpers
 const rest_request_base = async (url, options, returnResponse = false) => {

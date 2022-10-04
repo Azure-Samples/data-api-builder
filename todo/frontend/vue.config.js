@@ -3,8 +3,8 @@ module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
     proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
+      '/graphql': {
+        target: 'https://localhost:5001/',
         changeOrigin: true,
       },
     },

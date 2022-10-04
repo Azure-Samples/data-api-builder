@@ -38,8 +38,8 @@
 		</footer>
   </section> 
   <footer class="info">
-		<label id="login">[<a href=".auth/login/github">login</a>]</label>
-		<label id="logoff">[<a href=".auth/logout">logoff</a>]</label>
+		<label id="login">[<a href="/.auth/login/github">login</a>]</label>
+		<label id="logoff">[<a href="/.auth/logout">logoff</a>]</label>
 		<p>Double-click to edit a todo</p>
 		<p>Original <a href="https://github.com/vuejs/vuejs.org/tree/master/src/v2/examples/vue-20-todomvc">Vue.JS Sample</a> by <a href="http://evanyou.me">Evan You</a></p>		
 		<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
@@ -49,7 +49,9 @@
 </template>
 
 <script>
-var API = "/api/graphql";
+//var API = (process.env.BACKEND_SERVER ?? "") + "/graphql";
+var API = "https://localhost:5001/graphql";
+//console.log(`backend server: ${API}`);
 var HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json' };		
 
 var filters = {
@@ -95,7 +97,7 @@ export default {
       return res.json();
     }).then(res => {				
       this.todos = res == null ? [] : res.data.todos.items;
-    })    
+    });        
   },
   
   computed: {
@@ -111,10 +113,12 @@ export default {
       var value = this.newTodo && this.newTodo.trim();
       if (!value) return;
 
+      var owner_id = "the_owner_id";
+
       fetch(API, {
         headers: HEADERS, 
         method: "POST", 
-        body: JSON.stringify({query:`mutation { createTodo(item:{title: "${value}", completed: false}) {id, title, completed } }`})
+        body: JSON.stringify({query:`mutation { createTodo(item:{title: "${value}", completed: false, owner_id: "${owner_id}"}) {id, title, completed } }`})
       }).then(res => {					
         if (res.ok) {												
           this.newTodo = ''
@@ -129,7 +133,7 @@ export default {
       fetch(API, {
         headers: HEADERS, 
         method: "POST", 
-        body: JSON.stringify({query:`mutation { updateTodo(id: ${todo.id}, item:{completed: ${todo.completed}}) { id } }`})
+        body: JSON.stringify({query:`mutation { updateTodo(id: "${todo.id}", item:{completed: ${todo.completed}}) { id } }`})
       });
     },
 
@@ -138,7 +142,7 @@ export default {
       fetch(API, {
         headers: HEADERS, 
         method: "POST", 
-        body: JSON.stringify({query:`mutation { deleteTodo(id: ${id}) { id } }`})
+        body: JSON.stringify({query:`mutation { deleteTodo(id: "${id}") { id } }`})
       }).then(res => {
         if (res.ok) {
           var index = this.todos.indexOf(todo);
@@ -164,7 +168,7 @@ export default {
         fetch(API, {
           headers: HEADERS, 
           method: "POST", 
-          body: JSON.stringify({query:`mutation { updateTodo(id: ${todo.id}, item:{title: "${todo.title}"}) { id } }`})
+          body: JSON.stringify({query:`mutation { updateTodo(id: "${todo.id}", item:{title: "${todo.title}"}) { id } }`})
         });						
       }
     },

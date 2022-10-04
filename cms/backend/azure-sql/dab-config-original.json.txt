@@ -2,7 +2,7 @@
   "$schema": "../schemas/hawaii.draft-01.schema.json",
   "data-source": {
     "database-type": "mssql",
-    "connection-string": "Server=tcp:cms-sample.database.windows.net,1433;Initial Catalog=cms-db;Persist Security Info=False;User ID={your_aad_username};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Authentication=\"Active Directory Interactive\";"
+    "connection-string": "Server=tcp:dmmssqlsrv.database.windows.net,1433;Initial Catalog=dabcms;Persist Security Info=False;User ID=dabcms;Password=STR0NGpassw0rd!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;"
   },
   "mssql": {
     "set-session-context": false
@@ -10,7 +10,7 @@
   "runtime": {
     "rest": {
       "enabled": true,
-      "path": "/api"
+      "path": "/dab"
     },
     "graphql": {
       "enabled": true,
@@ -20,8 +20,8 @@
     "host": {
       "mode": "Production",
       "cors": {
-        "origins": [ "http://localhost:3000" ],
-        "allow-credentials": true
+        "origins": [ "*" ],
+        "allow-credentials": false
       },
       "authentication": {
         "provider": "AzureAD",

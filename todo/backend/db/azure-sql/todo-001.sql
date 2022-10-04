@@ -1,13 +1,14 @@
-drop table if exists [s001].[todos]
-create table [s001].[todos]
+drop table if exists [dbo].[todos]
+create table [dbo].[todos]
 (
-	[id] [int] identity primary key not null,
-	[title] [nvarchar](100) not null,
-	[completed] [bit] not null default ((0))
+	[id] uniqueidentifier  primary key nonclustered not null default(newid()),
+	[title] [nvarchar](1000) not null,
+	[completed] [bit] not null default (0),
+	[owner_id] varchar(128) collate Latin1_General_100_BIN2 not null default ('public')
 )
 go
 
-insert into s001.todos
+insert into dbo.todos
 	(title, completed)
 values
 	('item-001', 0),
@@ -30,4 +31,4 @@ values
 	('item-019', 1),
 	('item-019', 1),
 	('item-020', 0)
-
+go
