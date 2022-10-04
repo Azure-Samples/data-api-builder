@@ -46,7 +46,7 @@
             {
               "action": "*",
               "policy": {
-                "database": "@item.owner_id eq @claim.userId"
+                "database": "@item.owner_id eq @claims.userId"
               }
             }            
           ]
