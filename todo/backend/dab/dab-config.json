@@ -1,5 +1,5 @@
 {
-  "$schema": "dab.draft-01.schema.json",
+  "$schema": "https://dataapibuilder.azureedge.net/schemas/v0.4.11-alpha/dab.draft.schema.json",
   "data-source": {
     "database-type": "mssql",
     "connection-string": "Server=localhost;Database=DAB_Todo;User ID=dab_test_user;Password=DAB_Pas$w0rD!;TrustServerCertificate=true"
@@ -14,7 +14,7 @@
     "host": {
       "mode": "development",      
       "cors": {
-        "origins": [ "http://localhost:4280", "http://localhost:8080" ],
+        "origins": [ "http://localhost:4280" ],
         "allow-credentials": true
       },
       "authentication": {
