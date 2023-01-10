@@ -385,3 +385,4 @@ MigrationBackup/
 
 # Custom
 .env
+log.txt
