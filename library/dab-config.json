@@ -1,5 +1,5 @@
 {
-  "$schema": "https://dataapibuilder.blob.core.windows.net/schemas/v0.3.7-alpha/dab.draft.schema.json",
+  "$schema": "https://dataapibuilder.blob.core.windows.net/schemas/v0.4.11-alpha/dab.draft.schema.json",
   "data-source": {
     "database-type": "mssql",
     "connection-string": "Server=localhost;Database=DAB_GettingStarted;User ID=dab_test_user;Password=The-DAB_Pas$w0rD!;TrustServerCertificate=true"
@@ -13,9 +13,11 @@
       "path": "/graphql"
     },
     "host": {
-      "mode": "development",    
-      "cors": {                     
-        "origins": [ "http://127.0.0.1:5500" ],
+      "mode": "development",
+      "cors": {
+        "origins": [
+          "http://127.0.0.1:5500"
+        ],
         "allow-credentials": false
       },
       "authentication": {
@@ -25,11 +27,7 @@
   },
   "entities": {
     "Book": {
-      "source": {
-        "type": "table",
-        "object": "dbo.books",
-        "key-fields": []
-      },
+      "source": "dbo.books",
       "rest": {
         "path": "books"
       },
@@ -55,11 +53,7 @@
       }
     },
     "Series": {
-      "source": {
-        "type": "table",
-        "object": "dbo.series",
-        "key-fields": []
-      },
+      "source": "dbo.series",
       "permissions": [
         {
           "role": "anonymous",
@@ -74,6 +68,47 @@
           "target.entity": "Book"
         }
       }
+    },
+    "BookDetails": {
+      "source": {
+        "type": "view",
+        "object": "dbo.vw_books_details",
+        "key-fields": [
+          "id"
+        ]
+      },
+      "rest": {
+        "path": "bookDetails"
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "*"
+          ]
+        }
+      ]
+    },
+    "GetCowrittenBooksByAuthor": {
+      "source": {
+        "type": "stored-procedure",
+        "object": "dbo.stp_get_all_cowritten_books_by_author",
+        "parameters": {
+          "author": "*",
+          "searchType": "s"
+        }
+      },
+      "rest": {
+        "path": "cowrittenBooksByAuthor"
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ]
     }
   }
 }
