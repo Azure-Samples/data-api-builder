@@ -1,0 +1,59 @@
+{
+    "$schema": "dab.draft-01.schema.json",
+    "data-source": {
+      "database-type": "mssql",
+      "connection-string": "env('DATABASE_CONNECTION_STRING')"
+    },
+    "runtime": {
+      "rest": {
+        "path": "/api"
+      },
+      "graphql": {
+        "path": "/graphql"
+      },
+      "host": {
+        "mode": "development",
+        "cors": {
+          "origins": ["http://localhost:4280"],
+          "allow-credentials": true
+        },
+        "authentication": {
+          "provider": "StaticWebApps"
+        }
+      }
+    },
+    "entities": {
+      "Author": {
+        "source": "dbo.authors",
+        "permissions": [
+          {
+            "actions": ["*"],
+            "role": "admin"
+          },
+          {
+            "actions": ["read"],
+            "role": "anonymous"
+          }
+        ],
+        "relationships": {
+          "books": {
+            "cardinality": "many",
+            "target.entity": "Book"
+          }
+        }
+      },
+      "Book": {
+        "source": "dbo.books",
+        "permissions": [
+          {
+            "actions": ["*"],
+            "role": "admin"
+          },
+          {
+            "actions": ["read"],
+            "role": "anonymous"
+          }
+        ]
+      }
+    }
+  }
