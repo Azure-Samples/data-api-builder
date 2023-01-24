@@ -1,4 +1,4 @@
-const API = "https://localhost:5001/api/todo";
+const API = "/data-api/v1/todo";
 var HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
 
 // visibility filters
@@ -65,8 +65,6 @@ var app = new Vue({
         }
     },
 
-    // methods that implement data logic.
-    // note there's no DOM manipulation here at all.
     methods: {
         getUserInfo: function() {
             return fetch('/.auth/me')
