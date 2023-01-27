@@ -26,7 +26,7 @@ const logout = async (setUser, setDbUser, router) => {
     await msalInstance.logoutPopup(
         {
             account: currentAccount,
-            postLogoutRedirectUri: "http://localhost:3000/auth"
+            postLogoutRedirectUri: "/auth"
         });
     setUser(null);
     setDbUser(null);

@@ -149,7 +149,7 @@ export default function MyAccount({ user, setUser, setDbUser, cacheChecked }) {
             await msalInstance.logoutPopup(
                 {
                     account: currentAccount,
-                    postLogoutRedirectUri: "http://localhost:3000"
+                    postLogoutRedirectUri: "/"
                 });
             setUser(null);
             setDbUser(null);

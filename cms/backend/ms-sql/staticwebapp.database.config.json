@@ -6,7 +6,7 @@
   },
   "runtime": {
     "rest": {
-      "path": "/api"
+      "path": "/v1"
     },
     "graphql": {
       "allow-introspection": true,
@@ -15,8 +15,8 @@
     "host": {
       "mode": "development",
       "cors": {
-        "origins": [
-          "http://localhost:3000"
+        "origins": [          
+          "http://localhost:4280"
         ],
         "allow-credentials": true
       },

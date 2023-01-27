@@ -3,7 +3,7 @@ import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 //process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const httpLink = new HttpLink({
-    uri: "https://localhost:5001/graphql/",
+    uri: "/graphql/",
     credentials: 'same-origin',
     headers: {
         'Content-Type': 'application/graphql',
