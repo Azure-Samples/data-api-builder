@@ -1,7 +1,7 @@
 import { msalInstance, scopes } from "../auth_config"
 
-// Hawaii's REST endpoint. Replace if running as hosted through AppService/SWA
-const REST_ENDPOINT = process.env.REST_ENDPOINT ?? "http://20.252.81.170:5000/api";
+// Data API Builder's REST endpoint. Replace if running as hosted through AppService/SWA
+const REST_ENDPOINT = process.env.REST_ENDPOINT ?? "https://localhost:5001/api";
 
 // Helpers
 const rest_request_base = async (url, options, returnResponse = false) => {

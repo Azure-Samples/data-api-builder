@@ -69,7 +69,7 @@ export default function Home({ user, setUser, dbUser, cacheChecked }) {
           <main className={styles.main}>
               <Box bg={bgcolor} className={styles.header} boxShadow="md">
                   <h1 className={styles.title}>
-                      Welcome to Hawaii-CMS!
+                      Welcome to DAB Headless CMS!
                   </h1>
 
                   <p className={styles.description}>
