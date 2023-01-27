@@ -1,8 +1,7 @@
 <template>
   <section class="todoapp">
 		<header class="header">
-			<h1>todos</h1>
-			<h2>GraphQL style</h2>
+			<h1>todos</h1>			
 			<input class="new-todo" autofocus autocomplete="off" placeholder="What needs to be done?" v-model="newTodo" @keyup.enter="addTodo" />
 		</header>
     <section class="main" v-show="todos.length" v-cloak>			    
@@ -37,22 +36,12 @@
 			</button>
 		</footer>
   </section> 
-  <footer class="info">
-		<label id="login">[<a href="/.auth/login/github">login</a>]</label>
-		<label id="logoff">[<a href="/.auth/logout">logoff</a>]</label>
-		<p>Double-click to edit a todo</p>
-		<p>Original <a href="https://github.com/vuejs/vuejs.org/tree/master/src/v2/examples/vue-20-todomvc">Vue.JS Sample</a> by <a href="http://evanyou.me">Evan You</a></p>		
-		<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
-    <p>Hawaii Demo</p>
-    <p><a href="index.html">Back to homepage</a></p>
-	</footer> 
+  <UserInfo/>
 </template>
 
-<script>
-//var API = (process.env.BACKEND_SERVER ?? "") + "/graphql";
-var API = "https://localhost:5001/graphql";
-//console.log(`backend server: ${API}`);
-var HEADERS = { 'Accept': 'application/json', 'Content-Type': 'application/json' };		
+<script lang="js">
+import UserInfo from './UserInfo.vue'
+import API from '../api.js'
 
 var filters = {
   all: function (todos) {
@@ -71,6 +60,10 @@ var filters = {
 };
 
 export default {
+  components: {
+    UserInfo
+  },
+
   data() {
     return {
       todos: [],
@@ -87,25 +80,24 @@ export default {
     } else {
       window.location.hash = "";
       this.visibility = "all";
-    }
+    }		
 
-    fetch(API, { 
-      headers: HEADERS, 
-      method: "POST", 
-      body: JSON.stringify({query:"{ todos { items { id, title, completed } } }"})
+    fetch(API.URL, { 
+      headers: API.HEADERS, 
+      method: "GET"      
     }).then(res => {
       return res.json();
     }).then(res => {				
-      this.todos = res == null ? [] : res.data.todos.items;
-    });        
+      this.todos = res == null ? [] : res.value;
+    });
   },
   
   computed: {
-    activeTodos: function () { return this.todos.filter(todo => !todo.completed) },
+    activeTodos: function () { return filters["active"](this.todos) },
 
-    completedTodos: function () { return this.todos.filter(todo => todo.completed) },
+    completedTodos: function () { return filters["completed"](this.todos) },
     
-    filteredTodos: function () { return filters[this.visibility](this.todos); }    
+    filteredTodos: function () { return filters[this.visibility](this.todos); },    
   },
 
   methods: {
@@ -113,36 +105,32 @@ export default {
       var value = this.newTodo && this.newTodo.trim();
       if (!value) return;
 
-      var owner_id = "the_owner_id";
-
-      fetch(API, {
-        headers: HEADERS, 
+      fetch(API.URL, {
+        headers: API.HEADERS, 
         method: "POST", 
-        body: JSON.stringify({query:`mutation { createTodo(item:{title: "${value}", completed: false, owner_id: "${owner_id}"}) {id, title, completed } }`})
+        body: JSON.stringify( { title: value } )
       }).then(res => {					
         if (res.ok) {												
           this.newTodo = ''
           return res.json();
         }
       }).then(res => {						
-        this.todos.push(res.data.createTodo);
+        this.todos.push(res.value[0]);
       })
     },
 
-    completeTodo: function(todo) {
-      fetch(API, {
-        headers: HEADERS, 
-        method: "POST", 
-        body: JSON.stringify({query:`mutation { updateTodo(id: "${todo.id}", item:{completed: ${todo.completed}}) { id } }`})
+    completeTodo: function(todo) {      
+      fetch(API.URL + `/id/${todo.id}`, {
+        headers: API.HEADERS, 
+        method: "PATCH",
+        body: JSON.stringify({completed: todo.completed})        
       });
-    },
+    },    
 
-    removeTodo: function (todo) {					
-      var id = todo.id;
-      fetch(API, {
-        headers: HEADERS, 
-        method: "POST", 
-        body: JSON.stringify({query:`mutation { deleteTodo(id: "${id}") { id } }`})
+    removeTodo: function (todo) {					      
+      fetch(API.URL + `/id/${todo.id}`, {
+        headers: API.HEADERS, 
+        method: "DELETE"        
       }).then(res => {
         if (res.ok) {
           var index = this.todos.indexOf(todo);
@@ -165,10 +153,10 @@ export default {
       if (!todo.title) {
         this.removeTodo(todo);
       } else {
-        fetch(API, {
-          headers: HEADERS, 
-          method: "POST", 
-          body: JSON.stringify({query:`mutation { updateTodo(id: "${todo.id}", item:{title: "${todo.title}"}) { id } }`})
+        fetch(API.URL + `/id/${todo.id}`, {
+          headers: API.HEADERS, 
+          method: "PATCH", 
+          body: JSON.stringify( { title: todo.title } )
         });						
       }
     },
@@ -189,7 +177,7 @@ export default {
         return term + 's';
       else
         return term;
-    }
+    }    
   },
 
   directives: {

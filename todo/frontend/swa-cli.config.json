@@ -5,8 +5,9 @@
       "appLocation": ".",
       "outputLocation": "dist",
       "appBuildCommand": "npm run build",
-      "run": "npm run serve",
-      "appDevserverUrl": "http://localhost:8080"
+      "run": "npm run dev",
+      "appDevserverUrl": "http://localhost:5173",
+      "dataApiLocation": "../backend/dab"
     }
   }
 }

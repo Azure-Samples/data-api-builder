@@ -2,8 +2,8 @@
   "$schema": "https://aka.ms/azure/static-web-apps-cli/schema",
   "configurations": {
     "frontend-simple": {
-      "appLocation": ".",
-      "outputLocation": "."
-    }
+      "appLocation": ".",      
+      "dataApiLocation": "../backend/dab"
+    }    
   }
 }
