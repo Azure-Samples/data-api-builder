@@ -12,7 +12,7 @@ Azure Data API builder for Azure Databases allows you to automatically expose da
 
 ## How I do get started?
 
-If this is the very first time you'll be using Data API builder for Azure Databases, you may want to start from the [Getting Started](https://github.com/Azure/hawaii-engine/getting-started.md) in the engine repository document
+If this is the very first time you'll be using Data API builder for Azure Databases, you may want to start from the [Getting Started](https://github.com/Azure/data-api-builder/blob/main/docs/getting-started/getting-started.md) in the engine repository document
 
 ## There are any end-to-end samples available?
 
