@@ -7,22 +7,6 @@ import './App.css';
 import BookList from './Components/BookList/BookList';
 import AuthorList from './Components/AuthorList/AuthorList';
 
-// const httpLink = createHttpLink({
-//   uri: '/data-api/graphql',
-// });
-
-// const authLink = setContext((_, { headers }) => {
-//   // get the authentication token from local storage if it exists
-//   const token = localStorage.getItem('token');
-//   // return the headers to the context so httpLink can read them
-//   return {
-//     headers: {
-//       ...headers,
-//       authorization: token ? `Bearer ${token}` : "",
-//     }
-//   }
-// });
-
 const client = new ApolloClient({
   uri: '/data-api/graphql',
   cache: new InMemoryCache({
@@ -33,9 +17,6 @@ const client = new ApolloClient({
 function App() {
   //read token from cookie StaticWebAppsAuthCookie
   let token;
-
-  fetch('/api/Httptrigger1');
-
 
   try{
     token = document.cookie.split(';').find(c => c.trim().startsWith('StaticWebAppsAuthCookie=')).split('=')[1];
