@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import './BookList.css';
-import { getXMSClientTokenFromCookie } from '../../shared/helpers';
 
 function CreateBookModal({ showModal, setShowModal, refetch }) {
     const [title, setTitle] = useState('');
@@ -17,7 +16,6 @@ function CreateBookModal({ showModal, setShowModal, refetch }) {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-MS-API-ROLE' : 'admin',
-                    'X-MS-CLIENT-PRINCIPAL': getXMSClientTokenFromCookie()
                 },
                 body: JSON.stringify({
                     title,

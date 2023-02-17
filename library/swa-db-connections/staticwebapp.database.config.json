@@ -1,8 +1,11 @@
 {
-    "$schema": "dab.draft-01.schema.json",
+    "$schema": "https://dataapibuilder.azureedge.net/schemas/v0.5.0-beta/dab.draft.schema.json",
     "data-source": {
       "database-type": "mssql",
-      "connection-string": "env('DATABASE_CONNECTION_STRING')"
+      "options": {
+        "set-session-context": false
+      },
+      "connection-string": "@env('DB_CONNECTION_STRING')"
     },
     "runtime": {
       "rest": {

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, } from 'react-bootstrap';
 import './BookList.css';
 import CreateBookModal from './CreateBookModal';
-import { getXMSClientTokenFromCookie } from '../../shared/helpers';
 
 const BookList = () => {
     const [books, setBooks] = useState([]);
@@ -32,7 +31,6 @@ const BookList = () => {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-MS-API-ROLE' : 'admin',
-                    'X-MS-CLIENT-PRINCIPAL': getXMSClientTokenFromCookie()
                 }
             });
             if (!response.ok) {
