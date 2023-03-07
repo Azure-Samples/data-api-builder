@@ -1,9 +1,0 @@
-.book-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: left;
-  }
-
-  .book-page {
-    margin: 2rem;
-  }

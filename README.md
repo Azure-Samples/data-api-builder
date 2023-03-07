@@ -1,6 +1,6 @@
 # Data API builder for Azure Databases samples
 
-Jamstack / Fullstack samples on how to use Data API builder for Azure Databases to build end-to-end solutions.
+Samples on how to use Data API builder for Azure Databases 
 
 ## What the Data API builder for Azure Database can do for me?
 
@@ -14,22 +14,32 @@ Azure Data API builder for Azure Databases allows you to automatically expose da
 
 If this is the very first time you'll be using Data API builder for Azure Databases, you may want to start from the [Getting Started](https://github.com/Azure/hawaii-engine/getting-started.md) in the engine repository document
 
+## What samples I can found in this repo?
+
+
+
 ## There are any end-to-end samples available?
 
-Absolutely, here's the list of the samples available in this repo:
+Absolutely. To make it easier to deploy, each end-to-end sample has its own repo:
 
-### ToDo MVC
+### To Do App
 
-The well-known  [ToDo MVC sample](https://todomvc.com/) using Vue, Azure Data API builder and Azure SQL DB. 
+The well-known  [ToDo MVC sample](https://todomvc.com/) using Vue, Azure Static Web Apps and Data API builder: 
 
-### CMS
+https://github.com/Azure-Samples/dab-swa-todo
 
-A simple but complete CMS application built with Next.js, Azure Data API builder and your choice of Azure SQL DB or MySQL.
+### Library Management App
 
-### Tour of Super Heroes
+Organize and keep track of books in your personal library with this sample app built with Angular, Azure Static Web Apps and Data API builder:
 
-The Tour of Super Heroes App built with Angular, Azure Data API builder and Azure Cosmos DB  with many of the features that you'd expect to find in a data-driven app.
+https://github.com/Azure-Samples/dab-swa-library-demo
 
-### e-Commerce App
+### Tour of Super Heroes App
 
-The e-Commerce App built with Angular, Azure Data API builder and Azure Cosmos DB with end to end business logic.
+The Tour of Super Heroes App built with Angular, Data API builder with many of the features that you'd expect to find in a data-driven app.
+
+https://github.com/Azure-Samples/dab-swa-super-heroes
+
+## Can I contribute?
+
+Absolutely! If you have a sample using Data API builder, make sure to take a look at the [Code of Conduct](./CODE_OF_CONDUCT.md) and then please submit a PR to this repo.
