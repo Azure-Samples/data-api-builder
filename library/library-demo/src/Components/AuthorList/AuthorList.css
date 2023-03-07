@@ -1,0 +1,15 @@
+.author-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: left;
+  }
+  
+  .author-card {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  .author-page {
+    margin: 2rem;
+  }
