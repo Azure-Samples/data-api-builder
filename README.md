@@ -1,6 +1,6 @@
 # Data API builder for Azure Databases samples
 
-Samples on how to use Data API builder for Azure Databases 
+Samples on how to use [Data API builder](https://github.com/Azure/data-api-builder) for Azure Databases 
 
 ## What the Data API builder for Azure Database can do for me?
 
