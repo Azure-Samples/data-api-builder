@@ -38,7 +38,7 @@ https://github.com/Azure-Samples/dab-swa-library-demo
 
 The Tour of Super Heroes App built with Angular, Data API builder with many of the features that you'd expect to find in a data-driven app.
 
-https://github.com/Azure-Samples/dab-swa-super-heroes
+https://github.com/Azure-Samples/dab-swa-wonders
 
 ## Can I contribute?
 
