@@ -1,14 +1,15 @@
 # Data API builder for Azure Databases samples
 
-Samples on how to use [Data API builder](https://github.com/Azure/data-api-builder) for Azure Databases 
+Samples on how to use [Data API builder](https://github.com/Azure/data-api-builder) for Azure Databases
 
 ## What the Data API builder for Azure Database can do for me?
 
 Azure Data API builder for Azure Databases allows you to automatically expose database objects (tables, views, stored procedures or collections), already existing in your Azure Databases, as REST and GraphQL endpoints. The supported database are:
+
 - Azure SQL and SQL Server
 - PostgreSQL
 - MariaDB and MySQL
-- Azure Cosmos DB 
+- Azure Cosmos DB
 
 ## How I do get started?
 
@@ -16,15 +17,13 @@ If this is the very first time you'll be using Data API builder for Azure Databa
 
 ## What samples I can found in this repo?
 
-
-
 ## There are any end-to-end samples available?
 
 Absolutely. To make it easier to deploy, each end-to-end sample has its own repo:
 
 ### To Do App
 
-The well-known  [ToDo MVC sample](https://todomvc.com/) using Vue, Azure Static Web Apps and Data API builder: 
+The well-known [ToDo MVC sample](https://todomvc.com/) using Vue, Azure Static Web Apps and Data API builder:
 
 https://github.com/Azure-Samples/dab-swa-todo
 
@@ -34,9 +33,9 @@ Organize and keep track of books in your personal library with this sample app b
 
 https://github.com/Azure-Samples/dab-swa-library-demo
 
-### Tour of Super Heroes App
+### Tour of Wonders App
 
-The Tour of Super Heroes App built with Angular, Data API builder with many of the features that you'd expect to find in a data-driven app.
+The Tour of Wonders App built with Angular, Data API builder with many of the features that you'd expect to find in a data-driven app.
 
 https://github.com/Azure-Samples/dab-swa-wonders
 
