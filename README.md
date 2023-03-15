@@ -1,22 +1,19 @@
 # Data API builder for Azure Databases samples
 
-Samples on how to use Data API builder for Azure Databases 
+Various samples on how to use [Data API builder](https://github.com/Azure/data-api-builder) for Azure Databases 
 
 ## What the Data API builder for Azure Database can do for me?
 
 Azure Data API builder for Azure Databases allows you to automatically expose database objects (tables, views, stored procedures or collections), already existing in your Azure Databases, as REST and GraphQL endpoints. The supported database are:
+
 - Azure SQL and SQL Server
 - PostgreSQL
-- MariaDB and MySQL
+- MySQL
 - Azure Cosmos DB 
 
 ## How I do get started?
 
-If this is the very first time you'll be using Data API builder for Azure Databases, you may want to start from the [Getting Started](https://github.com/Azure/hawaii-engine/getting-started.md) in the engine repository document
-
-## What samples I can found in this repo?
-
-
+If this is the very first time you'll be using Data API builder for Azure Databases, you may want to start from the [Getting Started](https://aka.ms/dabdocs) in the engine repository document
 
 ## There are any end-to-end samples available?
 
