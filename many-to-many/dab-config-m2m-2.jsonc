@@ -1,8 +1,7 @@
 /*
   Sample showing
 
-  One-To-Many
-  Many-To-Many as a pair of One-To-Many relationships
+  Many-To-Many with a Linking Entity (as a pair of One-To-Many relationships)
 */
 {
   "$schema": "https://dataapibuilder.azureedge.net/schemas/v0.5.34/dab.draft.schema.json",
@@ -11,7 +10,7 @@
     "options": {
       "set-session-context": false
     },
-    "connection-string": "@env('MSSQL')"
+    "connection-string": "@env('CONNSTR')"
   },
   "runtime": {
     "rest": {
@@ -71,11 +70,7 @@
           ]
         }
       ],
-      "relationships": {
-        "series": {
-          "cardinality": "one",
-          "target.entity": "Series"
-        },
+      "relationships": {       
         "authors": {
           "cardinality": "many",
           "target.entity": "BookAuthor",
@@ -90,24 +85,7 @@
       "rest": {
         "path": "/books"
       }
-    },
-    "Series": {
-      "source": "dbo.series",
-      "permissions": [
-        {
-          "role": "anonymous",
-          "actions": [
-            "*"
-          ]
-        }
-      ],
-      "relationships": {
-        "books": {
-          "cardinality": "many",
-          "target.entity": "Book"
-        }
-      }
-    },
+    },    
     "BookAuthor": {
       "source": "dbo.books_authors",
       "permissions": [

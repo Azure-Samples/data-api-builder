@@ -2,6 +2,7 @@ create table dbo.books_authors
 (
     author_id int not null constraint fk__authors foreign key references dbo.authors(id),
     book_id int not null  constraint fk__books foreign key references dbo.books(id),
+    author_type_id int null constraint fk__author_types foreign key references dbo.author_types(id),
     constraint pk__books_authors primary key (
         author_id,
         book_id

@@ -41,35 +41,43 @@ values
     (1020, 'SQL Server 2022 Revealed: A Hybrid Data Platform Powered by Security, Performance, and Availability', 2022, 506)
 go
 
+insert into dbo.author_types
+    (id, author_type)
+values  
+    (2000, 'Main'),
+    (2001, 'Contributor'),
+    (2002, 'Co-Author')
+go
+
 insert into dbo.books_authors 
-    (author_id, book_id)
+    (author_id, book_id, author_type_id)
 values
-    (1, 1000),
-    (1, 1001),
-    (1, 1002),
-    (1, 1003),
-    (1, 1004),
-    (1, 1005),
-    (1, 1006),
-    (1, 1007),
-    (1, 1010),
-    (2, 1008),
-    (2, 1009),
-    (2, 1011),
-    (3, 1010),
-    (3, 1012),
-    (4, 1013),
-    (4, 1014),
-    (4, 1015),
-    (4, 1016),
-    (5, 1017),
-    (6, 1018),
-    (6, 1019),
-    (6, 1020),
-    (7, 1017), 
-    (8, 1017), 
-    (9, 1017), 
-    (10, 1017)
+    (1, 1000, null),
+    (1, 1001, null),
+    (1, 1002, null),
+    (1, 1003, null),
+    (1, 1004, null),
+    (1, 1005, null),
+    (1, 1006, null),
+    (1, 1007, null),
+    (1, 1010, 2002),
+    (2, 1008, null),
+    (2, 1009, null),
+    (2, 1011, null),
+    (3, 1010, 2002),
+    (3, 1012, null),
+    (4, 1013, null),
+    (4, 1014, null),
+    (4, 1015, null),
+    (4, 1016, null),
+    (5, 1017, 2002),
+    (6, 1018, null),
+    (6, 1019, null),
+    (6, 1020, null),
+    (7, 1017, 2002), 
+    (8, 1017, 2002), 
+    (9, 1017, 2002), 
+    (10, 1017, 2002)
 go
 
 insert into dbo.series values
