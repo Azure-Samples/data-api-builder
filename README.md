@@ -16,7 +16,29 @@ If this is the very first time you'll be using Data API builder for Azure Databa
 
 ## What samples I can found in this repo?
 
+TDB
 
+### Running the samples
+
+You can use the provided sample configuration file to run the sample. Before running `dab start` make sure to set the environment variable `CONNSTR` to the connection string you want to use.
+
+```powerhsell
+$env:CONNSTR='<connection-string>'
+```
+
+or 
+
+```bash
+export CONNSTR='<connection-string>'
+```
+
+The configuration files are using the `mssql` database. If you are using another database other the Azure SQL or SQL Server, please change the `database-type` in the configuration file before running the sample.
+
+You can then run the sample using the usual `dab start` command, pointing to the configuration file you want to use:
+
+```shell
+dab start --config '<config-file>'
+```
 
 ## There are any end-to-end samples available?
 
