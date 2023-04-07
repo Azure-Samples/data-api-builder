@@ -40,10 +40,6 @@ The configuration files are using the `mssql` database. If you are using another
 
 You can then run the sample using the usual `dab start` command, pointing to the configuration file you want to use:
 
-```shell
-dab start --config '<config-file>'
-```
->>>>>>> features
 
 ## There are any end-to-end samples available?
 
