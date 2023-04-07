@@ -1,4 +1,4 @@
-$envFile = "..\..\.env"
+$envFile = ".env"
 
 # Load values from .env file 
 if (Test-Path $envFile) {
@@ -18,8 +18,8 @@ if (Test-Path $envFile) {
 }
 
 # Check that MSSQL variable is set
-if (!(Test-Path env:MSSQL)) {
-  Write-Host "Cannot find MSSQL enviroment variable."
+if (!(Test-Path env:MSSQL_DEPLOY)) {
+  Write-Host "Cannot find MSSQL_DEPLOY enviroment variable."
   Write-Host "Please create an '$envFile' as described in the README."      
   exit
 }
@@ -28,6 +28,6 @@ Write-Host "Building .dacpac ..."
 dotnet build ".\LibraryDB\" -c Release         
 
 Write-Host "Deploying .dacpac ..."
-sqlpackage /a:Publish -sf:.\LibraryDB\bin\Release\LibraryDB.dacpac -tcs:$env:MSSQL /p:DropObjectsNotInSource=false
+sqlpackage -a:Publish -sf:.\LibraryDB\bin\Release\LibraryDB.dacpac -tcs:$env:MSSQL_DEPLOY /p:DropObjectsNotInSource=false
 
 Write-Host "Done."
