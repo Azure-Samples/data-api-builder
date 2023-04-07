@@ -57,7 +57,7 @@ https://github.com/Azure-Samples/dab-swa-todo
 
 ### Library Management App
 
-Organize and keep track of books in your personal library with this sample app built with Angular, Azure Static Web Apps and Data API builder:
+Organize and keep track of books in your personal library with this sample app built with React, Azure Static Web Apps and Data API builder:
 
 https://github.com/Azure-Samples/dab-swa-library-demo
 
