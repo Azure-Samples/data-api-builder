@@ -13,7 +13,37 @@ Azure Data API builder for Azure Databases allows you to automatically expose da
 
 ## How I do get started?
 
+<<<<<<< HEAD
 If this is the very first time you'll be using Data API builder for Azure Databases, you may want to start from the [Getting Started](https://aka.ms/dabdocs) in the engine repository document
+=======
+If this is the very first time you'll be using Data API builder for Azure Databases, you may want to start from the [Getting Started](https://github.com/Azure/hawaii-engine/getting-started.md) in the engine repository document
+
+## What samples I can found in this repo?
+
+TDB
+
+### Running the samples
+
+You can use the provided sample configuration file to run the sample. Before running `dab start` make sure to set the environment variable `CONNSTR` to the connection string you want to use.
+
+```powerhsell
+$env:CONNSTR='<connection-string>'
+```
+
+or 
+
+```bash
+export CONNSTR='<connection-string>'
+```
+
+The configuration files are using the `mssql` database. If you are using another database other the Azure SQL or SQL Server, please change the `database-type` in the configuration file before running the sample.
+
+You can then run the sample using the usual `dab start` command, pointing to the configuration file you want to use:
+
+```shell
+dab start --config '<config-file>'
+```
+>>>>>>> features
 
 ## There are any end-to-end samples available?
 
@@ -21,7 +51,7 @@ Absolutely. To make it easier to deploy, each end-to-end sample has its own repo
 
 ### To Do App
 
-The well-known  [ToDo MVC sample](https://todomvc.com/) using Vue, Azure Static Web Apps and Data API builder: 
+The well-known [ToDo MVC sample](https://todomvc.com/) using Vue, Azure Static Web Apps and Data API builder:
 
 https://github.com/Azure-Samples/dab-swa-todo
 
@@ -31,11 +61,11 @@ Organize and keep track of books in your personal library with this sample app b
 
 https://github.com/Azure-Samples/dab-swa-library-demo
 
-### Tour of Super Heroes App
+### Tour of Wonders App
 
-The Tour of Super Heroes App built with Angular, Data API builder with many of the features that you'd expect to find in a data-driven app.
+The Tour of Wonders App built with Angular, Data API builder with many of the features that you'd expect to find in a data-driven app.
 
-https://github.com/Azure-Samples/dab-swa-super-heroes
+https://github.com/Azure-Samples/dab-swa-wonders
 
 ## Can I contribute?
 

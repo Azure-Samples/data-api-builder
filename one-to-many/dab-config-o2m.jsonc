@@ -1,0 +1,78 @@
+/*
+  Sample showing
+
+  One-To-Many  
+*/
+{
+  "$schema": "https://dataapibuilder.azureedge.net/schemas/v0.5.34/dab.draft.schema.json",
+  "data-source": {
+    "database-type": "mssql",
+    "options": {
+      "set-session-context": false
+    },
+    "connection-string": "@env('CONNSTR')"
+  },
+  "runtime": {
+    "rest": {
+      "enabled": true,
+      "path": "/api"
+    },
+    "graphql": {
+      "allow-introspection": true,
+      "enabled": true,
+      "path": "/graphql"
+    },
+    "host": {
+      "mode": "development",
+      "cors": {
+        "origins": [],
+        "allow-credentials": false
+      },
+      "authentication": {
+        "provider": "StaticWebApps"
+      }
+    }
+  },
+  "entities": {
+    "Series": {
+      "source": "dbo.series",
+      "rest": {
+        "path": "/series"
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "*"
+          ]
+        }
+      ],
+      "relationships": {
+        "books": {
+          "cardinality": "many",
+          "target.entity": "Book"
+        }
+      }
+    },
+    "Book": {
+      "source": "dbo.books",
+      "rest": {
+        "path": "/books"
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "*"
+          ]
+        }
+      ],
+      "relationships": {
+        "series": {
+          "cardinality": "one",
+          "target.entity": "Series"
+        }
+      }
+    }
+  }
+}
