@@ -1,12 +1,8 @@
 /*
   Sample showing
 
-<<<<<<<< HEAD:one-to-many/dab-config-o2m.jsonc
-  One-To-Many  
-========
   One-To-Many
   Many-To-Many with a Linking Table
->>>>>>>> features:many-to-many/dab-config-m2m-1.jsonc
 */
 {
   "$schema": "https://dataapibuilder.azureedge.net/schemas/v0.5.34/dab.draft.schema.json",
@@ -39,10 +35,10 @@
     }
   },
   "entities": {
-    "Series": {
-      "source": "dbo.series",
+    "Author": {
+      "source": "dbo.authors",
       "rest": {
-        "path": "/series"
+        "path": "/authors"
       },
       "permissions": [
         {
@@ -55,7 +51,8 @@
       "relationships": {
         "books": {
           "cardinality": "many",
-          "target.entity": "Book"
+          "target.entity": "Book",
+          "linking.object": "dbo.books_authors"
         }
       }
     },
@@ -73,18 +70,11 @@
         }
       ],
       "relationships": {
-<<<<<<<< HEAD:one-to-many/dab-config-o2m.jsonc
-        "series": {
-          "cardinality": "one",
-          "target.entity": "Series"
-        }
-========
         "authors": {
           "cardinality": "many",
           "target.entity": "Author",
           "linking.object": "dbo.books_authors"
         }      
->>>>>>>> features:many-to-many/dab-config-m2m-1.jsonc
       }
     }
   }
