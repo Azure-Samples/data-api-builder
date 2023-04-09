@@ -1,0 +1,207 @@
+{
+  "$schema": "https://github.com/Azure/data-api-builder/releases/download/v0.6.13/dab.draft.schema.json",
+  "data-source": {
+    "database-type": "mssql",
+    "options": {
+      "set-session-context": false
+    },
+    "connection-string": "@env('MSSQL')"
+  },
+  "runtime": {
+    "rest": {
+      "enabled": true,
+      "path": "/api"
+    },
+    "graphql": {
+      "allow-introspection": true,
+      "enabled": true,
+      "path": "/graphql"
+    },
+    "host": {
+      "mode": "development",
+      "cors": {
+        "origins": [],
+        "allow-credentials": false
+      },
+      "authentication": {
+        "provider": "StaticWebApps"
+      }
+    }
+  },
+  "entities": {
+    "Series": {
+      "source": "dbo.series",
+      "rest": {
+        "path": "/series"
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "*"
+          ]
+        }
+      ],
+      "relationships": {
+        "books": {
+          "cardinality": "many",
+          "target.entity": "Book"
+        }
+      }
+    },
+    "Book": {
+      "source": "dbo.books",
+      "rest": {
+        "path": "/books"
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "*"
+          ]
+        }
+      ],
+      "relationships": {
+        "series": {
+          "cardinality": "one",
+          "target.entity": "Series"
+        },
+        "authors": {
+          "cardinality": "many",
+          "target.entity": "BookAuthor",
+          "source.fields": [
+            "id"
+          ],
+          "target.fields": [
+            "book_id"
+          ]
+        }
+      }
+    },
+    "Author": {
+      "source": "dbo.authors",
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "*"
+          ]
+        }
+      ],
+      "relationships": {
+        "books": {
+          "cardinality": "many",
+          "target.entity": "BookAuthor",
+          "source.fields": [
+            "id"
+          ],
+          "target.fields": [
+            "author_id"
+          ]
+        }        
+      },
+      "rest": {
+        "path": "/authors"
+      }
+    },
+    "BookAuthor": {
+      "source": "dbo.books_authors",
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "*"
+          ]
+        }
+      ],
+      "relationships": {
+        "book": {
+          "cardinality": "one",
+          "target.entity": "Book",
+          "source.fields": [
+            "book_id"
+          ],
+          "target.fields": [
+            "id"
+          ]
+        },
+        "author": {
+          "cardinality": "one",
+          "target.entity": "Author",
+          "source.fields": [
+            "author_id"
+          ],
+          "target.fields": [
+            "id"
+          ]
+        },
+        "authorType": {
+          "cardinality": "one",
+          "target.entity": "AuthorType"
+        }
+      }
+    },
+    "AuthorType": {
+      "source": "dbo.author_types",
+      "rest": {
+        "path": "/authorTypes"
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "*"
+          ]
+        }
+      ]
+    },
+    "AuthorBooksCount": {
+      "source": {
+        "object": "dbo.vw_book_count_by_author",
+        "type": "view",
+        "key-fields": [
+          "author_id"
+        ]
+      },
+      "rest": {
+        "path": "/author-books-count"
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "mappings": {
+        "books": "book_count"
+      }      
+    },
+    "GetAllCowrittenBooksByAuthor": {
+      "source": {
+        "object": "dbo.stp_get_all_cowritten_books_by_author",
+        "type": "stored-procedure",
+        "parameters": {
+          "author": "",
+          "searchType": "c"
+        }    
+      },
+      "graphql": {
+        "operation": "query"
+      },
+      "rest": {
+        "methods": [ "post" ]
+      },      
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ]
+    }
+  }  
+}
